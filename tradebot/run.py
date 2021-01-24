@@ -19,9 +19,8 @@ def execute_trade(client: AuthenticatedClient, profile: ProfileId, spec: TradeSp
 
 
 if __name__ == "__main__":
-    assert len(sys.argv) == 4
+    assert len(sys.argv) == 3
     profile = ProfileId(sys.argv[1], sys.argv[2])
-    trade_spec_id = sys.argv[3]
 
     LOGGER.info(
         "Running tradebot ...",
@@ -33,7 +32,7 @@ if __name__ == "__main__":
     )
 
     client = get_client(profile)
-    spec = get_trade_spec(trade_spec_id)
+    spec = get_trade_spec(profile)
     execute_trade(client, profile, spec)
 
     LOGGER.info("Done")

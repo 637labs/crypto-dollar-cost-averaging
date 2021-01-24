@@ -1,8 +1,7 @@
 from typing import AnyStr, Dict, Generator, Tuple
 
 from .firestore import get_db
-
-_SPECS_COLLECTION = "trade_specs"
+from .profile import ProfileId, get_profile_field
 
 ProductId = AnyStr
 
@@ -21,17 +20,30 @@ class DictSpec(TradeSpec):
             yield product_id, amount
 
 
-def _spec_from_dict(spec_dict) -> DictSpec:
-    trades = spec_dict["trades"]
-    trades_dict = {
-        trade["product_id"]: trade["quote_currency_amount"] for trade in trades
+def _get_target_daily_deposits(profile: ProfileId) -> Dict[ProductId, float]:
+    target_deposit_list = get_profile_field(profile, "target_daily_deposits")
+    assert isinstance(target_deposit_list, list)
+    return {td["product_id"]: float(td["deposit_amount"]) for td in target_deposit_list}
+
+
+def _get_daily_deposit_frequency(profile: ProfileId) -> int:
+    schedule_id = get_profile_field(profile, "schedule")
+    assert schedule_id and isinstance(schedule_id, str)
+
+    schedule_ref = get_db().collection("schedules").document(schedule_id)
+    schedule = schedule_ref.get()
+    if not schedule.exists:
+        raise Exception(f"Unknown schedule '{schedule_id}'")
+
+    return int(schedule.to_dict()["daily_frequency"])
+
+
+def get_trade_spec(profile: ProfileId) -> TradeSpec:
+    daily_deposit_amounts = _get_target_daily_deposits(profile)
+    daily_frequency = _get_daily_deposit_frequency(profile)
+
+    unit_deposit_amounts = {
+        product_id: daily_amount / daily_frequency
+        for (product_id, daily_amount) in daily_deposit_amounts.items()
     }
-    return DictSpec(trades_dict)
-
-
-def get_trade_spec(spec_id: str) -> TradeSpec:
-    spec_data = get_db().collection(_SPECS_COLLECTION).document(spec_id).get()
-    if spec_data.exists:
-        return _spec_from_dict(spec_data.to_dict())
-    else:
-        raise Exception(f"Unable to lookup trade spec '{spec_id}'")
+    return DictSpec(unit_deposit_amounts)

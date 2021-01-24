@@ -47,3 +47,17 @@ class ProfileId:
                 self._guid = profile_ref.id
 
         return self._guid
+
+
+def get_profile_field(profile_id: ProfileId, field: str):
+    profile_ref = (
+        get_db().collection(_PROFILES_COLLECTION).document(profile_id.get_guid())
+    )
+    profile = profile_ref.get()
+    if not profile.exists:
+        raise Exception(f"Could not locate profile '{profile_id.get_guid()}'")
+
+    profile_data = profile.to_dict()
+    if field not in profile_data:
+        raise Exception(f"Profile does not contain field '{field}'")
+    return profile_data[field]
