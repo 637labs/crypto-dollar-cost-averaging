@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 from typing import AnyStr, Dict
@@ -9,6 +10,8 @@ from .orders import place_market_buy
 from .profile import ProfileId
 from .trade_spec import TradeSpec, get_trade_spec
 
+LOGGER = logging.getLogger()
+
 
 def execute_trade(client: AuthenticatedClient, profile: ProfileId, spec: TradeSpec):
     for product_id, quote_currency_amount in spec.trades():
@@ -18,14 +21,19 @@ def execute_trade(client: AuthenticatedClient, profile: ProfileId, spec: TradeSp
 if __name__ == "__main__":
     assert len(sys.argv) == 4
     profile = ProfileId(sys.argv[1], sys.argv[2])
-
-    project_id = os.environ["GCLOUD_PROJECT"]
-    print(f"Project ID: {project_id}")
-    print(f"Profile Namespace: {profile.namespace}")
-    print(f"Profile ID: {profile.identifier}")
-
     trade_spec_id = sys.argv[3]
+
+    LOGGER.info(
+        "Running tradebot ...",
+        extra={
+            "GCloud Project ID": os.environ["GCLOUD_PROJECT"],
+            "Profile Namespace": profile.namespace,
+            "Profile ID": profile.identifier,
+        },
+    )
 
     client = get_client(profile)
     spec = get_trade_spec(trade_spec_id)
     execute_trade(client, profile, spec)
+
+    LOGGER.info("Done")
