@@ -1,0 +1,31 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Tradebot",
+            "type": "shell",
+            "command": "docker build . -t crypto-tradebot:local",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Run Tradebot",
+            "dependsOn": [
+                "Build Tradebot"
+            ],
+            "type": "shell",
+            "command": "docker run -e \"PROJECT_ID=$PROJECT_ID\" -v ${LOCAL_DEV_HOME}/.config/gcloud:/home/tradebot/.config/gcloud:ro crypto-tradebot:local $PROFILE_NAMESPACE $PROFILE_IDENTIFIER",
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "BASH_ENV": "${workspaceFolder}/.vscode/local.env"
+                }
+            },
+            "problemMatcher": []
+        }
+    ]
+}

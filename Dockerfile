@@ -19,4 +19,4 @@ COPY ./tradebot /tradebot
 # Set user
 USER $USERNAME
 
-ENTRYPOINT [ "python3", "-u", "/tradebot/run.py" ]
+ENTRYPOINT [ "python3", "-u", "-m", "tradebot.run" ]
