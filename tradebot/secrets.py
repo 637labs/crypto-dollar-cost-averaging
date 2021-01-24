@@ -29,12 +29,12 @@ def get_secret(secret_name: str) -> str:
 
 
 def get_api_key(profile_id: ProfileId) -> str:
-    return get_secret(f"API_KEY_{profile_id.get_b32_qualified_id()}")
+    return get_secret(f"API_KEY_{profile_id.get_guid()}")
 
 
 def get_api_b64_secret(profile_id: ProfileId) -> str:
-    return get_secret(f"API_SECRET_{profile_id.get_b32_qualified_id()}")
+    return get_secret(f"API_SECRET_{profile_id.get_guid()}")
 
 
 def get_api_passphrase(profile_id: ProfileId) -> str:
-    return get_secret(f"API_PASSPHRASE_{profile_id.get_b32_qualified_id()}")
+    return get_secret(f"API_PASSPHRASE_{profile_id.get_guid()}")

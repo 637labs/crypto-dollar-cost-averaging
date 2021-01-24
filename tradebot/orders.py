@@ -18,7 +18,7 @@ def _create_order_record(
         .collection(_ORDER_RECORDS_COLLECTION)
         .add(
             {
-                u"profile": profile.get_b32_qualified_id(),
+                u"profile": profile.get_guid(),
                 u"product": product_id,
                 u"quote_currency_amount": quote_currency_amount,
                 u"client_oid": client_oid,
