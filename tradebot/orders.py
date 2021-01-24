@@ -2,9 +2,9 @@ import uuid
 
 from cbpro import AuthenticatedClient
 
-from .trade_spec import ProductId
-from .firestore import get_db, SERVER_TIMESTAMP
+from .firestore import SERVER_TIMESTAMP, get_db
 from .profile import ProfileId
+from .trade_spec import ProductId
 
 _ORDER_RECORDS_COLLECTION = u"order_records"
 
@@ -23,6 +23,7 @@ def _create_order_record(
                 u"quote_currency_amount": quote_currency_amount,
                 u"client_oid": client_oid,
                 u"timestamp": SERVER_TIMESTAMP,
+                u"status": "STAGED",
             }
         )
     )
@@ -30,7 +31,11 @@ def _create_order_record(
 
 
 def _update_order_record(order_ref, server_oid: str) -> None:
-    order_ref.update({u"server_oid": server_oid})
+    order_ref.update({u"server_oid": server_oid, u"status": "ACCEPTED"})
+
+
+def _mark_order_rejected(order_ref, response_obj):
+    order_ref.update({u"status": "REJECTED", u"server_response": str(response_obj)})
 
 
 def place_market_buy(
@@ -46,5 +51,8 @@ def place_market_buy(
         product_id, "buy", funds=str(funds), client_oid=client_oid
     )
     # Update our records with the server-generated order ID
-    server_oid = response["id"]
-    _update_order_record(order_ref, server_oid)
+    if "id" in response:
+        server_oid = response["id"]
+        _update_order_record(order_ref, server_oid)
+    else:
+        _mark_order_rejected(order_ref, response)

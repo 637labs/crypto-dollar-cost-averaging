@@ -4,7 +4,7 @@ from google.cloud import secretmanager
 
 from .profile import ProfileId
 
-_PROJECT_ID = os.environ["PROJECT_ID"]
+_PROJECT_ID = os.environ["GCLOUD_PROJECT"]
 
 _CLIENT: secretmanager.SecretManagerServiceClient = None
 

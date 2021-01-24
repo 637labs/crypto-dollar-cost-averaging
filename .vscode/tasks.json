@@ -18,7 +18,7 @@
                 "Build Tradebot"
             ],
             "type": "shell",
-            "command": "docker run -e \"PROJECT_ID=$PROJECT_ID\" -v ${LOCAL_DEV_HOME}/.config/gcloud:/home/tradebot/.config/gcloud:ro crypto-tradebot:local $PROFILE_NAMESPACE $PROFILE_IDENTIFIER",
+            "command": "docker run -e \"GCLOUD_PROJECT=$GCLOUD_PROJECT_ID\" -v ${LOCAL_DEV_HOME}/.config/gcloud:/home/tradebot/.config/gcloud:ro crypto-tradebot:local $PROFILE_NAMESPACE $PROFILE_IDENTIFIER $TRADE_SPEC_ID",
             "options": {
                 "cwd": "${workspaceFolder}",
                 "env": {
