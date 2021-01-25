@@ -1,4 +1,4 @@
-FROM python:3.7.4
+FROM python:3.7.4-slim
 
 ARG USERNAME=tradebot
 ARG USER_UID=1000
@@ -14,9 +14,12 @@ RUN pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requ
     && rm -rf /tmp/pip-tmp
 
 # Application source
-COPY ./tradebot /tradebot
+COPY src /tradebot
+
+# Allow statements and log messages to immediately appear in the logs
+ENV PYTHONUNBUFFERED True
 
 # Set user
 USER $USERNAME
 
-ENTRYPOINT [ "python3", "-u", "-m", "tradebot.run" ]
+ENTRYPOINT gunicorn --bind :$PORT --workers 1 --threads 8 tradebot.run:app

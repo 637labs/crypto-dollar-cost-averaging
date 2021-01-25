@@ -30,7 +30,7 @@ RUN echo "#!/bin/sh\n\
    exec \"\$@\"" > /usr/local/share/docker-init.sh \
    && chmod +x /usr/local/share/docker-init.sh
 
-COPY requirements.txt /tmp/pip-tmp/
+COPY tradebot/requirements.txt /tmp/pip-tmp/
 RUN pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements.txt \
    && rm -rf /tmp/pip-tmp
 
