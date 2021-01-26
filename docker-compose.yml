@@ -9,3 +9,13 @@ services:
             GCLOUD_PROJECT: ${gcloudProject}
         volumes:
             - ${localDevHome}/.config/gcloud:/home/tradebot/.config/gcloud:ro
+    schedule-fanout:
+        image: schedule-fanout:local
+        ports: 
+            - "9001:9000"
+        environment:
+            PORT: "9000"
+            GCLOUD_PROJECT: ${gcloudProject}
+            TARGET_TOPIC: ${tradebotTopic}
+        volumes:
+            - ${localDevHome}/.config/gcloud:/home/tradebot/.config/gcloud:ro

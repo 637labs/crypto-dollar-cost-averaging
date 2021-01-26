@@ -7,10 +7,6 @@
             "label": "Build Tradebot",
             "type": "shell",
             "command": "docker build . -t crypto-tradebot:local",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
             "options": {
                 "cwd": "${workspaceFolder}/tradebot",
                 "env": {
@@ -19,12 +15,31 @@
             },
         },
         {
-            "label": "Run Tradebot",
+            "label": "Build Schedule Fanout",
+            "type": "shell",
+            "command": "docker build . -t schedule-fanout:local",
+            "options": {
+                "cwd": "${workspaceFolder}/schedule_fanout",
+                "env": {
+                    "BASH_ENV": "${workspaceFolder}/.vscode/local.env"
+                }
+            },
+        },
+        {
+            "label": "Build Services",
             "dependsOn": [
-                "Build Tradebot"
+                "Build Tradebot",
+                "Build Schedule Fanout"
+            ],
+            "group": "build"
+        },
+        {
+            "label": "Run Services",
+            "dependsOn": [
+                "Build Services"
             ],
             "type": "shell",
-            "command": "gcloudProject=$GCLOUD_PROJECT_ID localDevHome=$LOCAL_DEV_HOME docker-compose -f docker-compose.yml up",
+            "command": "gcloudProject=$GCLOUD_PROJECT_ID localDevHome=$LOCAL_DEV_HOME tradebotTopic=$TRADEBOT_PUBSUB_TOPIC docker-compose -f docker-compose.yml up",
             "options": {
                 "cwd": "${workspaceFolder}",
                 "env": {

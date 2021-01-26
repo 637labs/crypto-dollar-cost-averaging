@@ -30,8 +30,10 @@ RUN echo "#!/bin/sh\n\
    exec \"\$@\"" > /usr/local/share/docker-init.sh \
    && chmod +x /usr/local/share/docker-init.sh
 
-COPY tradebot/requirements.txt /tmp/pip-tmp/
-RUN pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements.txt \
+COPY tradebot/requirements.txt /tmp/pip-tmp/tradebot-reqs.txt
+COPY schedule_fanout/requirements.txt /tmp/pip-tmp/fanout-reqs.txt
+RUN pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/tradebot-reqs.txt \
+   && pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/fanout-reqs.txt \
    && rm -rf /tmp/pip-tmp
 
 RUN apt-get update \
