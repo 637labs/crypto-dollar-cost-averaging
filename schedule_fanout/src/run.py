@@ -36,11 +36,15 @@ def handle_event():
     envelope = request.get_json()
     schedule_id = get_event_data(envelope, LOGGER)
 
+    profiles_count = 0
     with publisher() as pub:
         for namespace, identifier in _get_profiles_on_schedule(schedule_id):
             pub.publish_event(
                 {"profile": {"namespace": namespace, "identifier": identifier}}
             )
+            profiles_count += 1
+
+    LOGGER.info(f"Published events for {profiles_count} profiles")
 
     # Flush the stdout to avoid log buffering.
     sys.stdout.flush()
