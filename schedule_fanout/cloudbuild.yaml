@@ -12,8 +12,8 @@ steps:
             'build', '--pull',
             '-t', '${_GCR_HOSTNAME}/$PROJECT_ID/$REPO_NAME-schedule-fanout:$BRANCH_NAME',
             '--cache-from', '${_GCR_HOSTNAME}/$PROJECT_ID/$REPO_NAME-schedule-fanout:main',
-            '-f', 'Dockerfile',
-            '.'
+            '-f', 'schedule_fanout/Dockerfile',
+            'schedule_fanout'
         ]
     # Push image if main branch
     - name: 'gcr.io/cloud-builders/docker'

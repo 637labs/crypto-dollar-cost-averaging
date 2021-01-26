@@ -12,8 +12,8 @@ steps:
             'build', '--pull',
             '-t', '${_GCR_HOSTNAME}/$PROJECT_ID/$REPO_NAME-tradebot:$BRANCH_NAME',
             '--cache-from', '${_GCR_HOSTNAME}/$PROJECT_ID/$REPO_NAME-tradebot:main',
-            '-f', 'Dockerfile',
-            '.'
+            '-f', 'tradebot/Dockerfile',
+            'tradebot'
         ]
     # Push image if main branch
     - name: 'gcr.io/cloud-builders/docker'
