@@ -1,6 +1,5 @@
-requests>=2.18.0
 google-cloud-firestore==2.0.2
 google-cloud-secret-manager==2.2.0
-cbpro==1.1.4
+git+git://github.com/danpaquin/coinbasepro-python.git@5658b2212b0fe39dde18b792f34aeaf81dda6640#egg=cbpro
 Flask==1.1.2
 gunicorn==20.0.4

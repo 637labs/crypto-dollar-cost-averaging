@@ -33,16 +33,16 @@ def publisher():
     wait(futures)
 
 
-def get_event_data(envelope, logger) -> str:
+def get_event_data(envelope) -> str:
     if not envelope:
-        return log_and_format_error("no Pub/Sub message received", logger)
+        raise Exception("no Pub/Sub message received")
 
     if not isinstance(envelope, dict) or "message" not in envelope:
-        return log_and_format_error("invalid Pub/Sub message format", logger)
+        raise Exception("invalid Pub/Sub message format")
 
     pubsub_message = envelope["message"]
 
     if not isinstance(pubsub_message, dict):
-        return log_and_format_error("expected 'message' to be a dict", logger)
+        raise Exception("expected 'message' to be a dict")
 
     return pubsub_message["data"]

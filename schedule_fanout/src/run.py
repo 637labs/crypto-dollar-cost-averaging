@@ -34,7 +34,7 @@ def _get_profiles_on_schedule(
 @app.route("/", methods=["POST"])
 def handle_event():
     envelope = request.get_json()
-    schedule_id = get_event_data(envelope, LOGGER)
+    schedule_id = get_event_data(envelope)
     LOGGER.info(f"Starting fanout for schedule '{schedule_id}'...")
 
     profiles_count = 0

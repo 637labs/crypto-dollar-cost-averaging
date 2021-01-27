@@ -43,7 +43,7 @@ def process_profile_request(profile: ProfileId) -> Tuple[str, int]:
 @app.route("/", methods=["POST"])
 def handle_event():
     envelope = request.get_json()
-    data = get_event_data(envelope, LOGGER)
+    data = get_event_data(envelope)
 
     if not isinstance(data, dict) or "profile" not in data:
         return log_and_format_error("no 'profile' in message data", LOGGER)

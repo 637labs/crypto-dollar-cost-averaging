@@ -9,17 +9,17 @@ def _deserialize_message_data(ser_data: str) -> dict:
     return json.loads(deser)
 
 
-def get_event_data(envelope, logger) -> dict:
+def get_event_data(envelope) -> dict:
     if not envelope:
-        return log_and_format_error("no Pub/Sub message received", logger)
+        raise Exception"no Pub/Sub message received")
 
     if not isinstance(envelope, dict) or "message" not in envelope:
-        return log_and_format_error("invalid Pub/Sub message format", logger)
+        raise Exception"invalid Pub/Sub message format")
 
     pubsub_message = envelope["message"]
 
     if not isinstance(pubsub_message, dict):
-        return log_and_format_error("expected 'message' to be a dict", logger)
+        raise Exception"expected 'message' to be a dict")
 
     data_b64 = pubsub_message["data"]
     return _deserialize_message_data(data_b64)
