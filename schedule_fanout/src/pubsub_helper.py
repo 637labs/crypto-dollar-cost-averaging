@@ -45,4 +45,5 @@ def get_event_data(envelope) -> str:
     if not isinstance(pubsub_message, dict):
         raise Exception("expected 'message' to be a dict")
 
-    return pubsub_message["data"]
+    b64data = pubsub_message["data"]
+    return base64.standard_b64decode(b64data).decode()
