@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 from typing import AnyStr, Dict, Tuple
@@ -21,13 +22,15 @@ def execute_trade(client: AuthenticatedClient, profile: ProfileId, spec: TradeSp
 
 
 def process_profile_request(profile: ProfileId) -> Tuple[str, int]:
+    print("Running tradebot ...")
     print(
-        "Running tradebot ...",
-        extra={
-            "GCloud Project ID": os.environ["GCLOUD_PROJECT"],
-            "Profile Namespace": profile.namespace,
-            "Profile ID": profile.identifier,
-        },
+        json.dumps(
+            {
+                "GCloud Project ID": os.environ["GCLOUD_PROJECT"],
+                "Profile Namespace": profile.namespace,
+                "Profile ID": profile.identifier,
+            }
+        )
     )
 
     client = get_client(profile)
