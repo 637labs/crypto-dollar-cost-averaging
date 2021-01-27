@@ -1,7 +1,6 @@
 import base64
 import json
 import os
-from concurrent.futures import wait
 from contextlib import contextmanager
 
 from google.cloud import pubsub_v1
@@ -30,7 +29,7 @@ class _ContextualPublisher:
 def publisher():
     futures = []
     yield _ContextualPublisher(futures)
-    wait(futures)
+    [f.result() for f in futures]
 
 
 def get_event_data(envelope) -> str:
