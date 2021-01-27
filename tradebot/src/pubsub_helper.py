@@ -5,8 +5,9 @@ from .rest_helper import log_and_format_error
 
 
 def _deserialize_message_data(ser_data: str) -> dict:
-    deser = base64.standard_b64decode(ser_data)
-    return json.loads(deser)
+    deser_1 = base64.standard_b64decode(ser_data)
+    deser_2 = base64.standard_b64decode(deser_1).decode()
+    return json.loads(deser_2)
 
 
 def get_event_data(envelope) -> dict:
