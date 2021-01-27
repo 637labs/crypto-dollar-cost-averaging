@@ -1,4 +1,3 @@
-import logging
 import sys
 from typing import Generator, Tuple
 
@@ -8,8 +7,6 @@ from .firestore import get_db
 from .pubsub_helper import get_event_data, publisher
 
 app = Flask(__name__)
-
-LOGGER = logging.getLogger()
 
 
 def _get_profiles_on_schedule(
@@ -35,7 +32,7 @@ def _get_profiles_on_schedule(
 def handle_event():
     envelope = request.get_json()
     schedule_id = get_event_data(envelope)
-    LOGGER.info(f"Starting fanout for schedule '{schedule_id}'...")
+    print(f"Starting fanout for schedule '{schedule_id}'...")
 
     profiles_count = 0
     with publisher() as pub:
@@ -45,7 +42,7 @@ def handle_event():
             )
             profiles_count += 1
 
-    LOGGER.info(f"Published events for {profiles_count} profiles")
+    print(f"Published events for {profiles_count} profiles")
 
     # Flush the stdout to avoid log buffering.
     sys.stdout.flush()

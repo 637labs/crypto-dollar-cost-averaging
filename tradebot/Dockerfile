@@ -10,8 +10,16 @@ RUN groupadd --gid $USER_GID $USERNAME \
 
 # Install application dependencies
 COPY requirements.txt /tmp/pip-tmp/
-RUN pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements.txt \
-    && rm -rf /tmp/pip-tmp
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git \
+    && pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements.txt \
+    && rm -rf /tmp/pip-tmp \
+    && apt-get remove -y git \
+    #
+    # Clean up
+    && apt-get autoremove -y \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
 
 # Application source
 COPY src /tradebot
