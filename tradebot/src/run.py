@@ -10,7 +10,7 @@ from .client_helper import get_client
 from .orders import place_market_buy
 from .profile import ProfileId
 from .pubsub_helper import get_event_data
-from .rest_helper import log_and_format_error
+from .rest_helper import format_error
 from .trade_spec import TradeSpec, get_trade_spec
 
 app = Flask(__name__)
@@ -46,14 +46,14 @@ def handle_event():
     data = get_event_data(envelope)
 
     if not isinstance(data, dict) or "profile" not in data:
-        return log_and_format_error("no 'profile' in message data")
+        return format_error("no 'profile' in message data")
     profile_params = data["profile"]
     if not isinstance(profile_params, dict):
-        return log_and_format_error("expected 'profile' to be a dict")
+        return format_error("expected 'profile' to be a dict")
     if "namespace" not in profile_params:
-        return log_and_format_error("no 'namespace'")
+        return format_error("no 'namespace'")
     if "identifier" not in profile_params:
-        return log_and_format_error("no 'identifier'")
+        return format_error("no 'identifier'")
 
     profile = ProfileId(profile_params["namespace"], profile_params["identifier"])
 

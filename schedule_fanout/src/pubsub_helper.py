@@ -5,7 +5,6 @@ from contextlib import contextmanager
 
 from google.cloud import pubsub_v1
 
-from .rest_helper import log_and_format_error
 
 PROJECT_ID = os.environ["GCLOUD_PROJECT"]
 TARGET_TOPIC_ID = os.environ["TARGET_TOPIC"]

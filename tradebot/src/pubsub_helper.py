@@ -1,8 +1,6 @@
 import base64
 import json
 
-from .rest_helper import log_and_format_error
-
 
 def _deserialize_message_data(ser_data: str) -> dict:
     deser_1 = base64.standard_b64decode(ser_data)
