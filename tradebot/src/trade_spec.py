@@ -1,4 +1,4 @@
-from typing import AnyStr, Dict, Generator, Tuple
+from typing import AnyStr, Dict, List
 
 from .firestore import get_db
 from .profile import ProfileId, get_profile_field
@@ -7,17 +7,24 @@ ProductId = AnyStr
 
 
 class TradeSpec:
-    def trades(self) -> Generator[None, Tuple[ProductId, float], None]:
-        pass
+    def __init__(
+        self, product: ProductId, daily_frequency: int, daily_target_amount: float
+    ):
+        self.product = product
+        self.daily_frequency = daily_frequency
+        self.daily_target_amount = daily_target_amount
 
+    def get_product_id(self) -> ProductId:
+        return self.product
 
-class DictSpec(TradeSpec):
-    def __init__(self, trades: Dict[ProductId, float]):
-        self._trades = trades
+    def get_quote_amount(self) -> float:
+        return self.daily_target_amount / self.daily_frequency
 
-    def trades(self) -> Generator[None, Tuple[ProductId, float], None]:
-        for product_id, amount in self._trades.items():
-            yield product_id, amount
+    def get_daily_limit(self) -> float:
+        return self.daily_target_amount
+
+    def get_daily_frequency(self) -> int:
+        return self.daily_frequency
 
 
 def _get_target_daily_deposits(profile: ProfileId) -> Dict[ProductId, float]:
@@ -38,12 +45,11 @@ def _get_daily_deposit_frequency(profile: ProfileId) -> int:
     return int(schedule.to_dict()["daily_frequency"])
 
 
-def get_trade_spec(profile: ProfileId) -> TradeSpec:
+def get_trade_specs(profile: ProfileId) -> List[TradeSpec]:
     daily_deposit_amounts = _get_target_daily_deposits(profile)
     daily_frequency = _get_daily_deposit_frequency(profile)
 
-    unit_deposit_amounts = {
-        product_id: daily_amount / daily_frequency
+    return [
+        TradeSpec(product_id, daily_frequency, daily_amount)
         for (product_id, daily_amount) in daily_deposit_amounts.items()
-    }
-    return DictSpec(unit_deposit_amounts)
+    ]

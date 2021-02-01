@@ -1,24 +1,29 @@
 import json
 import os
 import sys
-from typing import AnyStr, Dict, Tuple
+from typing import AnyStr, Dict, List, Tuple
 
 from cbpro import AuthenticatedClient
 from flask import Flask, request
 
 from .client_helper import get_client
-from .orders import place_market_buy
+from .orders import DailyTargetDepositReached, place_market_buy
 from .profile import ProfileId
 from .pubsub_helper import get_event_data
 from .rest_helper import format_error
-from .trade_spec import TradeSpec, get_trade_spec
+from .trade_spec import TradeSpec, get_trade_specs
 
 app = Flask(__name__)
 
 
-def execute_trade(client: AuthenticatedClient, profile: ProfileId, spec: TradeSpec):
-    for product_id, quote_currency_amount in spec.trades():
-        place_market_buy(client, profile, product_id, quote_currency_amount)
+def execute_trades(
+    client: AuthenticatedClient, profile: ProfileId, specs: List[TradeSpec]
+):
+    for spec in specs:
+        try:
+            place_market_buy(client, profile, spec)
+        except DailyTargetDepositReached as e:
+            print(f"Already hit daily limit for '{e.product_id}'")
 
 
 def process_profile_request(profile: ProfileId) -> Tuple[str, int]:
@@ -34,8 +39,8 @@ def process_profile_request(profile: ProfileId) -> Tuple[str, int]:
     )
 
     client = get_client(profile)
-    spec = get_trade_spec(profile)
-    execute_trade(client, profile, spec)
+    specs = get_trade_specs(profile)
+    execute_trades(client, profile, specs)
 
     return ("", 204)
 
