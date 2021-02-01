@@ -29,7 +29,9 @@ class _Lock:
         self._transaction = transaction
 
         lock_snapshot = lock_ref.get(transaction=transaction)
-        self._initial_value = lock_snapshot.to_dict().get(_LOCK_VAL, 0)
+        self._initial_value = (
+            lock_snapshot.to_dict().get(_LOCK_VAL, 0) if lock_snapshot.exists else 0
+        )
 
     def increment(self):
         self._transaction.update(self._lock_ref, {_LOCK_VAL: self._initial_value + 1})
