@@ -34,7 +34,7 @@ class _Lock:
         )
 
     def increment(self):
-        self._transaction.update(self._lock_ref, {_LOCK_VAL: self._initial_value + 1})
+        self._transaction.set(self._lock_ref, {_LOCK_VAL: self._initial_value + 1})
 
 
 def _acquire_lock(key: str, transaction: firestore.Transaction):
@@ -47,7 +47,7 @@ def lock_on_key(key: str, transaction: firestore.Transaction):
     lock = _acquire_lock(key, transaction)
     try:
         yield
-    except:
-        pass
+    except Exception as e:
+        raise e
     else:
         lock.increment()

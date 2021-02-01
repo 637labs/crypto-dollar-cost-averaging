@@ -62,8 +62,7 @@ def _create_order_record(
             profile, product_id, spec.get_daily_frequency()
         )
         recent_orders = [
-            order_ref.get()
-            for order_ref in recent_orders_query.stream(transaction=transaction)
+            order for order in recent_orders_query.stream(transaction=transaction)
         ]
         todays_sum = _sum_total_order_amounts_today(recent_orders)
         if todays_sum >= spec.get_daily_limit():
