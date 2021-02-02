@@ -1,6 +1,6 @@
 import base64
 
-from .firestore import get_db
+from .firestore_helper import get_db
 
 LOCAL_NS = "LOCAL"
 SANDBOX_NS = "SANDBOX"

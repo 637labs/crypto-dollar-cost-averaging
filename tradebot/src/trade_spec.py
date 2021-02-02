@@ -1,6 +1,6 @@
 from typing import AnyStr, Dict, List
 
-from .firestore import get_db
+from .firestore_helper import get_db
 from .profile import ProfileId, get_profile_field
 
 ProductId = AnyStr

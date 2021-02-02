@@ -4,7 +4,7 @@ from datetime import date
 
 from cbpro import AuthenticatedClient
 
-from .firestore import (
+from .firestore_helper import (
     SERVER_TIMESTAMP,
     OrderDescending,
     Transaction,
@@ -28,7 +28,7 @@ class DailyTargetDepositReached(Exception):
 
 def _order_lock_key(profile: ProfileId, product: ProductId) -> str:
     key = f"{profile.get_guid()}:{product}"
-    return base64.standard_b64encode(key.encode()).decode()
+    return base64.urlsafe_b64encode(key.encode()).decode()
 
 
 def _build_latest_orders_query(profile: ProfileId, product: ProductId, limit: int):
@@ -38,6 +38,7 @@ def _build_latest_orders_query(profile: ProfileId, product: ProductId, limit: in
         .where("profile", "==", profile.get_guid())
         .where("product", "==", product)
         .order_by("timestamp", direction=OrderDescending)
+        .limit(limit)
     )
 
 
@@ -59,7 +60,7 @@ def _create_order_record(
     with lock_on_key(_order_lock_key(profile, product_id), transaction):
 
         recent_orders_query = _build_latest_orders_query(
-            profile, product_id, spec.get_daily_frequency()
+            profile, product_id, 2 * spec.get_daily_frequency()
         )
         recent_orders = [
             order for order in recent_orders_query.stream(transaction=transaction)
