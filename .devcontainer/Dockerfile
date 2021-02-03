@@ -30,6 +30,8 @@ RUN echo "#!/bin/sh\n\
    exec \"\$@\"" > /usr/local/share/docker-init.sh \
    && chmod +x /usr/local/share/docker-init.sh
 
+# Get updated GPG key used to sign yarn releases
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
 RUN apt-get update \
    && export DEBIAN_FRONTEND=noninteractive \
    && apt-get -y install --no-install-recommends \
@@ -70,10 +72,8 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
    && rm -rf /var/lib/apt/lists/*
 
 # App dependencies
-COPY tradebot/requirements.txt /tmp/pip-tmp/tradebot-reqs.txt
-COPY schedule_fanout/requirements.txt /tmp/pip-tmp/fanout-reqs.txt
-RUN pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/tradebot-reqs.txt \
-   && pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/fanout-reqs.txt \
+COPY requirements.txt /tmp/pip-tmp/requirements.txt
+RUN pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements.txt \
    && rm -rf /tmp/pip-tmp
 
 USER $USERNAME
