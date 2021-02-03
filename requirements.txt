@@ -1,4 +1,5 @@
 google-cloud-firestore==2.0.2
+google-cloud-pubsub==2.2.0
 google-cloud-secret-manager==2.2.0
 git+git://github.com/danpaquin/coinbasepro-python.git@5658b2212b0fe39dde18b792f34aeaf81dda6640#egg=cbpro
 Flask==1.1.2

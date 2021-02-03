@@ -6,9 +6,9 @@
         {
             "label": "Build Tradebot",
             "type": "shell",
-            "command": "docker build . -t crypto-tradebot:local",
+            "command": "docker build -f tradebot/Dockerfile . -t crypto-tradebot:local",
             "options": {
-                "cwd": "${workspaceFolder}/tradebot",
+                "cwd": "${workspaceFolder}",
                 "env": {
                     "BASH_ENV": "${workspaceFolder}/.vscode/local.env"
                 }
@@ -18,9 +18,9 @@
         {
             "label": "Build Schedule Fanout",
             "type": "shell",
-            "command": "docker build . -t schedule-fanout:local",
+            "command": "docker build -f schedule_fanout/Dockerfile . -t schedule-fanout:local",
             "options": {
-                "cwd": "${workspaceFolder}/schedule_fanout",
+                "cwd": "${workspaceFolder}",
                 "env": {
                     "BASH_ENV": "${workspaceFolder}/.vscode/local.env"
                 }
@@ -32,7 +32,8 @@
                 "Build Tradebot",
                 "Build Schedule Fanout"
             ],
-            "group": "build"
+            "group": "build",
+            "problemMatcher": []
         },
         {
             "label": "Run Services",

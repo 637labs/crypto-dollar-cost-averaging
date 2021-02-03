@@ -9,7 +9,7 @@ from flask import Flask, request
 from .client_helper import get_client
 from .orders import DailyTargetDepositReached, place_market_buy
 from .profile import ProfileId
-from .pubsub_helper import get_event_data
+from .pubsub_helper import get_event_data_dict
 from .rest_helper import format_error
 from .trade_spec import TradeSpec, get_trade_specs
 
@@ -48,7 +48,7 @@ def process_profile_request(profile: ProfileId) -> Tuple[str, int]:
 @app.route("/", methods=["POST"])
 def handle_event():
     envelope = request.get_json()
-    data = get_event_data(envelope)
+    data = get_event_data_dict(envelope)
 
     if not isinstance(data, dict) or "profile" not in data:
         return format_error("no 'profile' in message data")

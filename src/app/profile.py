@@ -1,6 +1,6 @@
 import base64
 
-from .firestore_helper import get_db
+from .firestore_helper import get_db, lock_on_key, transactional
 
 LOCAL_NS = "LOCAL"
 SANDBOX_NS = "SANDBOX"
@@ -62,3 +62,27 @@ def get_profile_field(profile_id: ProfileId, field: str):
     if field not in profile_data:
         raise Exception(f"Profile does not contain field '{field}'")
     return profile_data[field]
+
+
+@transactional
+def _create_profile(transaction, namespace, identifier):
+    matching_profile_query = (
+        get_db()
+        .collection(_PROFILES_COLLECTION)
+        .where("namespace", "==", namespace)
+        .where("identifier", "==", identifier)
+    )
+    matches = matching_profile_query.stream(transaction=transaction)
+    if matches:
+        raise Exception(
+            f"Profile <'namespace':'{namespace}', 'identifier':'{identifier}'> already exists!"
+        )
+    profile_ref = get_db().collection(_PROFILES_COLLECTION).document()
+    transaction.create(profile_ref, {"namespace": namespace, "identifier": identifier})
+
+    return ProfileId(namespace, identifier)
+
+
+def create_profile(namespace: str, identifier: str) -> ProfileId:
+    transaction = get_db().transaction()
+    return _create_profile(transaction, namespace, identifier)

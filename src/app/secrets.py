@@ -17,6 +17,10 @@ def _get_client() -> secretmanager.SecretManagerServiceClient:
     return _CLIENT
 
 
+def _get_secret_parent_name() -> str:
+    return f"projects/{_PROJECT_ID}"
+
+
 def _get_qualified_secret_name(secret_name: str) -> str:
     return f"projects/{_PROJECT_ID}/secrets/{secret_name}/versions/latest"
 
@@ -28,13 +32,38 @@ def get_secret(secret_name: str) -> str:
     return res.payload.data.decode("utf-8")
 
 
+def create_secret(secret_name: str, secret_payload: str) -> None:
+    secret = _get_client().create_secret(
+        {
+            "parent": _get_secret_parent_name(),
+            "secret_id": secret_name,
+            "secret": {"replication": {"automatic": []}},
+        }
+    )
+    _get_client().add_secret_version(
+        parent=secret.name, payload={"data": secret_payload.encode()}
+    )
+
+
 def get_api_key(profile_id: ProfileId) -> str:
     return get_secret(f"API_KEY_{profile_id.get_guid()}")
+
+
+def create_api_key(profile_id: ProfileId, api_key: str) -> None:
+    create_secret(f"API_KEY_{profile_id.get_guid()}", api_key)
 
 
 def get_api_b64_secret(profile_id: ProfileId) -> str:
     return get_secret(f"API_SECRET_{profile_id.get_guid()}")
 
 
+def create_api_b64_secret(profile_id: ProfileId, api_b64_secret: str) -> None:
+    create_secret(f"API_SECRET_{profile_id.get_guid()}", api_b64_secret)
+
+
 def get_api_passphrase(profile_id: ProfileId) -> str:
     return get_secret(f"API_PASSPHRASE_{profile_id.get_guid()}")
+
+
+def create_api_passphrase(profile_id: ProfileId, api_passphrase: str) -> None:
+    create_secret(f"API_PASSPHRASE_{profile_id.get_guid()}", api_passphrase)
