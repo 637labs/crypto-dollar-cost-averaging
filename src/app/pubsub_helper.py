@@ -6,21 +6,20 @@ from contextlib import contextmanager
 from google.cloud import pubsub_v1
 
 
-PROJECT_ID = os.environ["GCLOUD_PROJECT"]
-TARGET_TOPIC_ID = os.environ["TARGET_TOPIC"]
-
 _CLIENT = pubsub_v1.PublisherClient()
-_TOPIC_PATH = _CLIENT.topic_path(PROJECT_ID, TARGET_TOPIC_ID)
 
 
 class _ContextualPublisher:
     def __init__(self, futures: list):
+        self._topic_path = _CLIENT.topic_path(
+            os.environ["GCLOUD_PROJECT"], os.environ["TARGET_TOPIC"]
+        )
         self._futures = futures
 
     def publish_event(self, data: dict) -> None:
         json_data = json.dumps(data)
         b64data = base64.standard_b64encode(json_data.encode())
-        future = _CLIENT.publish(_TOPIC_PATH, b64data)
+        future = _CLIENT.publish(self._topic_path, b64data)
         self._futures.append(future)
 
 
