@@ -9,23 +9,27 @@ from .pubsub_helper import get_event_field, publisher
 app = Flask(__name__)
 
 
-def _get_profiles_on_schedule(
+def _get_target_deposits_on_schedule(
     schedule_id: str,
-) -> Generator[None, Tuple[str, str], None]:
-    profiles_query = (
-        get_db().collection("profiles").where("schedule", "==", schedule_id)
+) -> Generator[None, Tuple[str, str, str], None]:
+    target_deposits_query = (
+        get_db()
+        .collection_group("target_deposits")
+        .where("schedule", "==", schedule_id)
     )
-    unique_profiles = set()
-    for profile_doc in profiles_query.stream():
-        profile_data = profile_doc.to_dict()
-        profile_id = (profile_data["namespace"], profile_data["identifier"])
-        if profile_id in unique_profiles:
-            raise Exception(
-                f"Encountered duplicate profile: 'namespace': {profile_id[0]}, 'identifier': {profile_id[1]}"
-            )
-        unique_profiles.add(profile_id)
 
-        yield profile_id
+    for deposit in target_deposits_query.stream():
+        product_id = deposit.id
+        parent_profile_ref = deposit.reference.parent.parent
+        assert parent_profile_ref and parent_profile_ref.parent.id == "profiles"
+        parent_profile = parent_profile_ref.get()
+        assert parent_profile.exists
+
+        yield (
+            parent_profile.get("namespace"),
+            parent_profile.get("identifier"),
+            product_id,
+        )
 
 
 @app.route("/", methods=["POST"])
@@ -34,15 +38,20 @@ def handle_event():
     schedule_id = get_event_field(envelope)
     print(f"Starting fanout for schedule '{schedule_id}'...")
 
-    profiles_count = 0
+    events_count = 0
     with publisher() as pub:
-        for namespace, identifier in _get_profiles_on_schedule(schedule_id):
+        for namespace, identifier, product_id in _get_target_deposits_on_schedule(
+            schedule_id
+        ):
             pub.publish_event(
-                {"profile": {"namespace": namespace, "identifier": identifier}}
+                {
+                    "profile": {"namespace": namespace, "identifier": identifier},
+                    "product": product_id,
+                }
             )
-            profiles_count += 1
+            events_count += 1
 
-    print(f"Published events for {profiles_count} profiles")
+    print(f"Published {events_count} fanout events")
 
     # Flush the stdout to avoid log buffering.
     sys.stdout.flush()
