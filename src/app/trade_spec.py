@@ -1,7 +1,7 @@
 from typing import AnyStr, Dict, List
 
 from .firestore_helper import get_db
-from .profile import ProfileId, get_profile_field
+from .profile import ProfileId, get_profile_field, get_profile_subcollection
 
 ProductId = AnyStr
 
@@ -53,3 +53,26 @@ def get_trade_specs(profile: ProfileId) -> List[TradeSpec]:
         TradeSpec(product_id, daily_frequency, daily_amount)
         for (product_id, daily_amount) in daily_deposit_amounts.items()
     ]
+
+
+def get_trade_spec(profile: ProfileId, product_id: ProductId) -> TradeSpec:
+    target_deposits_collection = get_profile_subcollection(profile, "target_deposits")
+    deposit_spec = target_deposits_collection.document(product_id).get()
+    if not deposit_spec.exists:
+        raise Exception(
+            f"Could not find target deposit spec for profile '{profile.get_guid()}' and product '{product_id}'"
+        )
+
+    daily_target_amount = float(deposit_spec.get("deposit_amount"))
+
+    schedule_id = deposit_spec.get("schedule")
+    assert schedule_id and isinstance(schedule_id, str)
+
+    schedule_ref = get_db().collection("schedules").document(schedule_id)
+    schedule = schedule_ref.get()
+    if not schedule.exists:
+        raise Exception(f"Unknown schedule '{schedule_id}'")
+
+    daily_frequency = int(schedule.get("daily_frequency"))
+
+    return TradeSpec(product_id, daily_frequency, daily_target_amount)

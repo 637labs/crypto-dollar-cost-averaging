@@ -64,6 +64,13 @@ def get_profile_field(profile_id: ProfileId, field: str):
     return profile_data[field]
 
 
+def get_profile_subcollection(profile_id: ProfileId, subcollection_id: str):
+    profile_ref = (
+        get_db().collection(_PROFILES_COLLECTION).document(profile_id.get_guid())
+    )
+    return profile_ref.collection(subcollection_id)
+
+
 @transactional
 def _create_profile(transaction, namespace, identifier):
     matching_profile_query = (

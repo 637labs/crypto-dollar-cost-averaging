@@ -11,7 +11,7 @@ from .orders import DailyTargetDepositReached, place_market_buy
 from .profile import ProfileId
 from .pubsub_helper import get_event_data_dict
 from .rest_helper import format_error
-from .trade_spec import TradeSpec, get_trade_specs
+from .trade_spec import ProductId, TradeSpec, get_trade_spec, get_trade_specs
 
 app = Flask(__name__)
 
@@ -27,11 +27,10 @@ def execute_trades(
 
 
 def process_profile_request(profile: ProfileId) -> Tuple[str, int]:
-    print("Running tradebot ...")
+    print("Running tradebot (legacy profile-scoped event) ...")
     print(
         json.dumps(
             {
-                "GCloud Project ID": os.environ["GCLOUD_PROJECT"],
                 "Profile Namespace": profile.namespace,
                 "Profile ID": profile.identifier,
             }
@@ -41,6 +40,30 @@ def process_profile_request(profile: ProfileId) -> Tuple[str, int]:
     client = get_client(profile)
     specs = get_trade_specs(profile)
     execute_trades(client, profile, specs)
+
+    return ("", 204)
+
+
+def process_product_request(
+    profile: ProfileId, product_id: ProductId
+) -> Tuple[str, int]:
+    print("Running tradebot ...")
+    print(
+        json.dumps(
+            {
+                "Profile Namespace": profile.namespace,
+                "Profile ID": profile.identifier,
+                "Product": product_id,
+            }
+        )
+    )
+    client = get_client(profile)
+    spec = get_trade_spec(profile, product_id)
+
+    try:
+        place_market_buy(client, profile, spec)
+    except DailyTargetDepositReached as e:
+        print(f"Already hit daily limit for '{e.product_id}'")
 
     return ("", 204)
 
@@ -62,7 +85,10 @@ def handle_event():
 
     profile = ProfileId(profile_params["namespace"], profile_params["identifier"])
 
-    response = process_profile_request(profile)
+    if "product" in data:
+        response = process_product_request(profile, data["product"])
+    else:
+        response = process_profile_request(profile)
 
     # Flush the stdout to avoid log buffering.
     sys.stdout.flush()
@@ -76,8 +102,9 @@ def handle_direct_invocation():
 
     profile_params = envelope["profile"]
     profile = ProfileId(profile_params["namespace"], profile_params["identifier"])
+    product = envelope["product"]
 
-    response = process_profile_request(profile)
+    response = process_product_request(profile, product)
 
     # Flush the stdout to avoid log buffering.
     sys.stdout.flush()
