@@ -72,7 +72,7 @@ def _create_profile(transaction, namespace, identifier):
         .where("namespace", "==", namespace)
         .where("identifier", "==", identifier)
     )
-    matches = matching_profile_query.stream(transaction=transaction)
+    matches = list(matching_profile_query.stream(transaction=transaction))
     if matches:
         raise Exception(
             f"Profile <'namespace':'{namespace}', 'identifier':'{identifier}'> already exists!"

@@ -37,7 +37,7 @@ def create_secret(secret_name: str, secret_payload: str) -> None:
         {
             "parent": _get_secret_parent_name(),
             "secret_id": secret_name,
-            "secret": {"replication": {"automatic": []}},
+            "secret": {"replication": {"automatic": {}}},
         }
     )
     _get_client().add_secret_version(
