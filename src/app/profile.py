@@ -64,6 +64,21 @@ def get_profile_field(profile_id: ProfileId, field: str):
     return profile_data[field]
 
 
+def _set_profile_field(profile_id: ProfileId, field: str, value):
+    profile_ref = (
+        get_db().collection(_PROFILES_COLLECTION).document(profile_id.get_guid())
+    )
+    profile = profile_ref.get()
+    if not profile.exists:
+        raise Exception(f"Could not locate profile '{profile_id.get_guid()}'")
+
+    profile_ref.update({field: value})
+
+
+def set_profile_nickname(profile_id: ProfileId, nickname: str):
+    _set_profile_field(profile_id, "nickname", nickname)
+
+
 def get_profile_subcollection(profile_id: ProfileId, subcollection_id: str):
     profile_ref = (
         get_db().collection(_PROFILES_COLLECTION).document(profile_id.get_guid())

@@ -49,6 +49,45 @@
                 }
             },
             "problemMatcher": []
-        }
+        },
+        {
+            "label": "Create Profile",
+            "type": "shell",
+            "command": "GCLOUD_PROJECT=$GCLOUD_PROJECT_ID python -m src.scripts.create_profile --namespace=${input:profileNamespace} --api-key=${input:apiKey} --api-secret=${input:apiSecret} --api-passphrase=${input:apiPassphrase} --profile-nickname=${input:profileNickname}",
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "BASH_ENV": "${workspaceFolder}/.vscode/local.env"
+                }
+            },
+            "problemMatcher": []
+        },
+    ],
+    "inputs": [
+        {
+            "type": "promptString",
+            "id": "profileNamespace",
+            "description": "Profile namespace",
+        },
+        {
+            "type": "promptString",
+            "id": "apiKey",
+            "description": "Profile API Key",
+        },
+        {
+            "type": "promptString",
+            "id": "apiSecret",
+            "description": "Profile API Secret",
+        },
+        {
+            "type": "promptString",
+            "id": "apiPassphrase",
+            "description": "Profile API Passphrase",
+        },
+        {
+            "type": "promptString",
+            "id": "profileNickname",
+            "description": "Profile nickname",
+        },
     ]
 }

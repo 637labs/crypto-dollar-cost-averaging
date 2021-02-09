@@ -1,10 +1,9 @@
 import argparse
-import sys
 
 from cbpro import AuthenticatedClient
 
 from ..app.client_helper import PROFILE_NAMESPACE_TO_API_URL
-from ..app.profile import ProfileId, create_profile
+from ..app.profile import ProfileId, create_profile, set_profile_nickname
 from ..app.secrets import create_api_b64_secret, create_api_key, create_api_passphrase
 
 
@@ -14,6 +13,7 @@ def build_argparser():
     parser.add_argument("--api-key", required=True, type=str)
     parser.add_argument("--api-secret", required=True, type=str)
     parser.add_argument("--api-passphrase", required=True, type=str)
+    parser.add_argument("--profile-nickname", required=False, type=str)
     return parser
 
 
@@ -38,10 +38,6 @@ if __name__ == "__main__":
 
     api_url = PROFILE_NAMESPACE_TO_API_URL[args.namespace]
 
-    api_key = sys.argv[2]
-    api_secret = sys.argv[3]
-    api_passphrase = sys.argv[4]
-
     client = AuthenticatedClient(
         args.api_key, args.api_secret, args.api_passphrase, api_url=api_url
     )
@@ -52,6 +48,9 @@ if __name__ == "__main__":
     print("Creating profile...")
     profile_id = create_profile(args.namespace, identifier)
     print(f"Done, created ProfileId@{profile_id.get_guid()}")
+    if args.profile_nickname:
+        print(f"Setting profile nickname to '{args.profile_nickname}'")
+        set_profile_nickname(profile_id, args.profile_nickname)
 
     print("Creating secrets...")
     create_secrets(profile_id, args.api_key, args.api_secret, args.api_passphrase)
