@@ -62,6 +62,18 @@
             },
             "problemMatcher": []
         },
+        {
+            "label": "Configure Deposits",
+            "type": "shell",
+            "command": "python -m src.scripts.configure_target_deposits --profile-nickname=${input:profileNickname} ${input:depositSpecs}",
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "BASH_ENV": "${workspaceFolder}/.vscode/local.env"
+                }
+            },
+            "problemMatcher": []
+        },
     ],
     "inputs": [
         {
@@ -88,6 +100,11 @@
             "type": "promptString",
             "id": "profileNickname",
             "description": "Profile nickname",
+        },
+        {
+            "type": "promptString",
+            "id": "depositSpecs",
+            "description": "Deposits",
         },
     ]
 }
