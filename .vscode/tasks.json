@@ -53,7 +53,7 @@
         {
             "label": "Create Profile",
             "type": "shell",
-            "command": "GCLOUD_PROJECT=$GCLOUD_PROJECT_ID python -m src.scripts.create_profile --namespace=${input:profileNamespace} --api-key=${input:apiKey} --api-secret=${input:apiSecret} --api-passphrase=${input:apiPassphrase} --profile-nickname=${input:profileNickname}",
+            "command": "GCLOUD_PROJECT=$GCLOUD_PROJECT_ID python -m app.scripts.create_profile --namespace=${input:profileNamespace} --api-key=${input:apiKey} --api-secret=${input:apiSecret} --api-passphrase=${input:apiPassphrase} --profile-nickname=${input:profileNickname}",
             "options": {
                 "cwd": "${workspaceFolder}",
                 "env": {
@@ -65,7 +65,7 @@
         {
             "label": "Configure Deposits",
             "type": "shell",
-            "command": "python -m src.scripts.configure_target_deposits --profile-nickname=${input:profileNickname} ${input:depositSpecs}",
+            "command": "python -m app.scripts.configure_target_deposits --profile-nickname=${input:profileNickname} ${input:depositSpecs}",
             "options": {
                 "cwd": "${workspaceFolder}",
                 "env": {

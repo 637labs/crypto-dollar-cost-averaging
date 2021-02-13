@@ -22,7 +22,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Application source
-COPY src/app /app
+COPY app /app
 
 # Allow statements and log messages to immediately appear in the logs
 ENV PYTHONUNBUFFERED True
@@ -30,4 +30,4 @@ ENV PYTHONUNBUFFERED True
 # Set user
 USER $USERNAME
 
-ENTRYPOINT gunicorn --bind :$PORT --workers 1 --threads 8 app.tradebot:app
+ENTRYPOINT gunicorn --bind :$PORT --workers 1 --threads 8 app.services.tradebot:app

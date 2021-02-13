@@ -6,12 +6,12 @@ from typing import AnyStr, Dict, List, Tuple
 from cbpro import AuthenticatedClient
 from flask import Flask, request
 
-from .client_helper import get_client
-from .orders import DailyTargetDepositReached, place_market_buy
-from .profile import ProfileId
-from .pubsub_helper import get_event_data_dict
-from .rest_helper import format_error
-from .trade_spec import ProductId, TradeSpec, get_trade_spec, get_trade_specs
+from app.core.client_helper import get_client
+from app.core.orders import DailyTargetDepositReached, place_market_buy
+from app.core.profile import ProfileId
+from app.core.pubsub_helper import get_event_data_dict
+from app.core.rest_helper import format_error
+from app.core.trade_spec import ProductId, TradeSpec, get_trade_spec, get_trade_specs
 
 app = Flask(__name__)
 

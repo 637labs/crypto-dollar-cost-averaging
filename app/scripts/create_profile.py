@@ -2,9 +2,13 @@ import argparse
 
 from cbpro import AuthenticatedClient
 
-from ..app.client_helper import PROFILE_NAMESPACE_TO_API_URL
-from ..app.profile import ProfileId, create_profile, set_profile_nickname
-from ..app.secrets import create_api_b64_secret, create_api_key, create_api_passphrase
+from app.core.client_helper import PROFILE_NAMESPACE_TO_API_URL
+from app.core.profile import ProfileId, create_profile, set_profile_nickname
+from app.core.secrets import (
+    create_api_b64_secret,
+    create_api_key,
+    create_api_passphrase,
+)
 
 
 def build_argparser():
