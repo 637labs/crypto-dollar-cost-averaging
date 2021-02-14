@@ -27,10 +27,23 @@
             }
         },
         {
+            "label": "Build Frontend",
+            "type": "shell",
+            "command": "docker build -f fe_service/Dockerfile . -t coinpilot-fe:local",
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "BASH_ENV": "${workspaceFolder}/.vscode/local.env"
+                }
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "Build Services",
             "dependsOn": [
                 "Build Tradebot",
-                "Build Schedule Fanout"
+                "Build Schedule Fanout",
+                "Build Frontend",
             ],
             "group": "build",
             "problemMatcher": []
@@ -41,7 +54,7 @@
                 "Build Services"
             ],
             "type": "shell",
-            "command": "gcloudProject=$GCLOUD_PROJECT_ID localDevHome=$LOCAL_DEV_HOME tradebotTopic=$TRADEBOT_PUBSUB_TOPIC docker-compose -f docker-compose.yml up",
+            "command": "gcloudProject=$GCLOUD_PROJECT_ID localDevHome=$LOCAL_DEV_HOME tradebotTopic=$TRADEBOT_PUBSUB_TOPIC cbClientId=$COINBASE_CLIENT_ID cbClientSecret=$COINBASE_CLIENT_SECRET sessSecret=$EXPRSS_SESS_SECRET docker-compose -f docker-compose.yml up",
             "options": {
                 "cwd": "${workspaceFolder}",
                 "env": {
@@ -73,7 +86,7 @@
                 }
             },
             "problemMatcher": []
-        },
+        }
     ],
     "inputs": [
         {

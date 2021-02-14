@@ -19,3 +19,13 @@ services:
             TARGET_TOPIC: ${tradebotTopic}
         volumes:
             - ${localDevHome}/.config/gcloud:/home/tradebot/.config/gcloud:ro
+    frontend:
+        image: coinpilot-fe:local
+        ports:
+            - "3000:3000"
+        environment: 
+            HOSTNAME: "0.0.0.0"
+            COINBASE_CLIENT_ID: ${cbClientId}
+            COINBASE_CLIENT_SECRET: ${cbClientSecret}
+            SESSION_SECRET: ${sessSecret}
+
