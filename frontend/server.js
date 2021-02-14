@@ -3,10 +3,10 @@
 var path = require('path');
 var express = require('express');
 var session = require('express-session');
-var bodyParser = require('body-parser')
 var cookieParser = require('cookie-parser')
 var passport = require('passport')
 var CoinbaseStrategy = require('passport-coinbase').Strategy;
+var { ensureLoggedIn } = require('connect-ensure-login');
 
 const PORT = 3000;
 const HOST = process.env.HOSTNAME;
@@ -59,12 +59,9 @@ app.get('/auth/coinbase/callback',
 );
 
 app.get('/protected',
+    ensureLoggedIn('/login'),
     function (req, res) {
-        if (!req.user) {
-            res.redirect('/login')
-        } else {
-            res.send('<p>noyce</p>')
-        }
+        res.send('<p>noyce</p>');
     }
 );
 
