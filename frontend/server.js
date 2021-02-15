@@ -2,28 +2,29 @@
 
 var path = require('path');
 var express = require('express');
-var session = require('express-session');
 var cookieParser = require('cookie-parser')
+var helmet = require('helmet')
 var passport = require('passport')
 var CoinbaseStrategy = require('passport-coinbase').Strategy;
 var { ensureLoggedIn } = require('connect-ensure-login');
 
+var { session } = require('./session-config');
+
 const PORT = 3000;
 const HOST = process.env.HOSTNAME;
-const ROOT_URL = `http://${HOST}:${PORT}`
+const ROOT_URL = process.env.NODE_ENV == 'development' ? `http://${HOST}:${PORT}` : `https://${HOST}:${PORT}`;
 
 const app = express();
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+if (process.env.NODE_ENV != 'development') {
+    app.use(helmet());
+}
 app.use(express.static('public'));
 app.use(cookieParser());
-app.use(session({
-    resave: false, // don't save session if unmodified
-    saveUninitialized: false, // don't create session until something stored
-    secret: process.env.SESSION_SECRET
-}));
+app.use(session());
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -46,7 +47,7 @@ passport.use(new CoinbaseStrategy({
     },
 ));
 
-app.get('/login', function (req, res, next) {
+app.get('/login', function (req, res) {
     res.render('login')
 });
 
