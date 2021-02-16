@@ -6,7 +6,7 @@
         {
             "label": "Build Tradebot",
             "type": "shell",
-            "command": "docker build -f tradebot/Dockerfile . -t crypto-tradebot:local",
+            "command": "docker build -f builds/tradebot/Dockerfile . -t crypto-tradebot:local",
             "options": {
                 "cwd": "${workspaceFolder}",
                 "env": {
@@ -18,7 +18,7 @@
         {
             "label": "Build Schedule Fanout",
             "type": "shell",
-            "command": "docker build -f schedule_fanout/Dockerfile . -t schedule-fanout:local",
+            "command": "docker build -f builds/schedule_fanout/Dockerfile . -t schedule-fanout:local",
             "options": {
                 "cwd": "${workspaceFolder}",
                 "env": {

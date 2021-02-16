@@ -5,14 +5,14 @@ steps:
       args:
         - '-c'
         - |
-          docker pull ${_GCR_HOSTNAME}/$PROJECT_ID/$REPO_NAME-tradebot:main || exit 0
+          docker pull ${_GCR_HOSTNAME}/$PROJECT_ID/$REPO_NAME-schedule-fanout:main || exit 0
     # Build service image
     - name: 'gcr.io/cloud-builders/docker'
       args: [
             'build', '--pull',
-            '-t', '${_GCR_HOSTNAME}/$PROJECT_ID/$REPO_NAME-tradebot:$BRANCH_NAME',
-            '--cache-from', '${_GCR_HOSTNAME}/$PROJECT_ID/$REPO_NAME-tradebot:main',
-            '-f', 'tradebot/Dockerfile',
+            '-t', '${_GCR_HOSTNAME}/$PROJECT_ID/$REPO_NAME-schedule-fanout:$BRANCH_NAME',
+            '--cache-from', '${_GCR_HOSTNAME}/$PROJECT_ID/$REPO_NAME-schedule-fanout:main',
+            '-f', 'builds/schedule_fanout/Dockerfile',
             '.'
         ]
     # Push image if main branch
@@ -21,7 +21,7 @@ steps:
       args:
         - '-c'
         - |
-          [[ $BRANCH_NAME != main ]] || docker push ${_GCR_HOSTNAME}/$PROJECT_ID/$REPO_NAME-tradebot:$BRANCH_NAME
+          [[ $BRANCH_NAME != main ]] || docker push ${_GCR_HOSTNAME}/$PROJECT_ID/$REPO_NAME-schedule-fanout:$BRANCH_NAME
     # Deploy container image to Cloud Run
     - name: 'gcr.io/cloud-builders/gcloud'
       entrypoint: 'bash'
@@ -30,7 +30,7 @@ steps:
         - |
           [[ $BRANCH_NAME != main ]] || \
             gcloud run deploy ${_SERVICE_NAME} \
-            --image ${_GCR_HOSTNAME}/$PROJECT_ID/$REPO_NAME-tradebot:$BRANCH_NAME \
+            --image ${_GCR_HOSTNAME}/$PROJECT_ID/$REPO_NAME-schedule-fanout:$BRANCH_NAME \
             --region ${_SERVICE_REGION} --project $PROJECT_ID \
             --platform managed --no-allow-unauthenticated
 timeout: 300s
