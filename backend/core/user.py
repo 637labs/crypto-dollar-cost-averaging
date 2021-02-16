@@ -78,3 +78,10 @@ def create_user(provider: str, identifier: str) -> UserId:
 def get_or_create_user(provider: str, identifier: str) -> UserId:
     transaction = get_db().transaction()
     return _get_or_create_user(transaction, provider, identifier)
+
+
+def get_by_guid(user_guid: str) -> UserId:
+    user = get_db().collection(_USERS_COLLECTION).document(user_guid).get()
+    if not user.exists:
+        raise Exception(f"Did not find UserId@{user_guid}")
+    return UserId(user.get("provider"), user.get("identifier"))

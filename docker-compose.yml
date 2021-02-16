@@ -42,8 +42,9 @@ services:
             COINBASE_CLIENT_ID: ${cbClientId}
             COINBASE_CLIENT_SECRET: ${cbClientSecret}
             SESSION_SECRET: ${sessSecret}
-            NODE_ENV: 'development'
+            NODE_ENV: "development"
             # SERVER_SESSION: "true"
+            API_URL: "http://api:9000"
         volumes:
             - ${localDevHome}/.config/gcloud:/home/tradebot/.config/gcloud:ro
 

@@ -15,9 +15,7 @@ const session = function () {
         return cookieSession({
             secret: process.env.SESSION_SECRET,
             name: 'sessionId', // use generic session cookie name to prevent server fingerprinting
-            cookie: {
-                expires: new Date(Date.now() + 60 * 60 * 1000) // 1 hour
-            }
+            maxAge: 60 * 60 * 1000 // 1 hour
         });
     }
 };

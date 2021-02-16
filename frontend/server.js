@@ -9,6 +9,7 @@ var CoinbaseStrategy = require('passport-coinbase').Strategy;
 var { ensureLoggedIn } = require('connect-ensure-login');
 
 var { session } = require('./session-config');
+var { CoinbaseUser } = require('./users');
 
 const PORT = 3000;
 const HOST = process.env.HOSTNAME;
@@ -33,7 +34,7 @@ passport.serializeUser(function (user, done) {
 });
 
 passport.deserializeUser(function (id, done) {
-    done(null, { id });
+    done(null, new CoinbaseUser(id));
 });
 
 passport.use(new CoinbaseStrategy({
@@ -42,8 +43,25 @@ passport.use(new CoinbaseStrategy({
     callbackURL: `${ROOT_URL}/auth/coinbase/callback`
 },
     function (accessToken, refreshToken, profile, cb) {
-        console.log(`Auth successful -- profile ID: ${profile.id}, token: ${accessToken}`)
-        return cb(null, { id: profile.id })
+        console.log("Received Coinbase tokens")
+        CoinbaseUser.getOrCreate(
+            profile.id,
+            function (cbUser) {
+                console.log("Successfully fetched API user")
+                cbUser.setBasicOAuthTokens(accessToken, refreshToken,
+                    function () {
+                        return cb(null, cbUser);
+                    },
+                    function (err) {
+                        console.error(err)
+                        return cb(err, null);
+                    });
+            },
+            function (err) {
+                console.error(err)
+                return cb(err, null);
+            }
+        );
     },
 ));
 
