@@ -1,8 +1,8 @@
 import argparse
 from typing import List, Tuple, Dict
 
-from app.core.firestore_helper import get_db
-from app.core.profile import ProfileId, get_profile_subcollection
+from backend.core.firestore_helper import get_db
+from backend.core.profile import ProfileId, get_profile_subcollection
 
 
 def build_argparser():

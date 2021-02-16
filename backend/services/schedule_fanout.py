@@ -3,8 +3,8 @@ from typing import Generator, Tuple
 
 from flask import Flask, request
 
-from app.core.firestore_helper import get_db
-from app.core.pubsub_helper import get_event_field, publisher
+from backend.core.firestore_helper import get_db
+from backend.core.pubsub_helper import get_event_field, publisher
 
 app = Flask(__name__)
 
