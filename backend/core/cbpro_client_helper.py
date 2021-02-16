@@ -3,7 +3,11 @@ import os
 from cbpro import AuthenticatedClient
 
 from .profile import CBPRO_BETA_NS, LOCAL_NS, SANDBOX_NS, ProfileId
-from .secrets import get_api_b64_secret, get_api_key, get_api_passphrase
+from backend.core.secrets.profile_secrets import (
+    get_api_b64_secret,
+    get_api_key,
+    get_api_passphrase,
+)
 
 PROFILE_NAMESPACE_TO_API_URL = {
     SANDBOX_NS: "https://api-public.sandbox.pro.coinbase.com",

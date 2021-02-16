@@ -27,6 +27,17 @@
             }
         },
         {
+            "label": "Build API Service",
+            "type": "shell",
+            "command": "docker build -f builds/api/Dockerfile . -t api-service:local",
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "BASH_ENV": "${workspaceFolder}/.vscode/local.env"
+                }
+            }
+        },
+        {
             "label": "Build Frontend",
             "type": "shell",
             "command": "docker build -f builds/frontend/Dockerfile . -t coinpilot-fe:local",
@@ -43,6 +54,7 @@
             "dependsOn": [
                 "Build Tradebot",
                 "Build Schedule Fanout",
+                "Build API Service",
                 "Build Frontend",
             ],
             "group": "build",

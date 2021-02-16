@@ -1,8 +1,7 @@
 import os
 
+from google.api_core.exceptions import NotFound
 from google.cloud import secretmanager
-
-from .profile import ProfileId
 
 _PROJECT_ID = os.environ["GCLOUD_PROJECT"]
 
@@ -22,12 +21,16 @@ def _get_secret_parent_name() -> str:
 
 
 def _get_qualified_secret_name(secret_name: str) -> str:
+    return f"projects/{_PROJECT_ID}/secrets/{secret_name}"
+
+
+def _get_qualified_secret_version_name(secret_name: str) -> str:
     return f"projects/{_PROJECT_ID}/secrets/{secret_name}/versions/latest"
 
 
 def get_secret(secret_name: str) -> str:
     res = _get_client().access_secret_version(
-        name=_get_qualified_secret_name(secret_name)
+        name=_get_qualified_secret_version_name(secret_name)
     )
     return res.payload.data.decode("utf-8")
 
@@ -45,25 +48,17 @@ def create_secret(secret_name: str, secret_payload: str) -> None:
     )
 
 
-def get_api_key(profile_id: ProfileId) -> str:
-    return get_secret(f"API_KEY_{profile_id.get_guid()}")
-
-
-def create_api_key(profile_id: ProfileId, api_key: str) -> None:
-    create_secret(f"API_KEY_{profile_id.get_guid()}", api_key)
-
-
-def get_api_b64_secret(profile_id: ProfileId) -> str:
-    return get_secret(f"API_SECRET_{profile_id.get_guid()}")
-
-
-def create_api_b64_secret(profile_id: ProfileId, api_b64_secret: str) -> None:
-    create_secret(f"API_SECRET_{profile_id.get_guid()}", api_b64_secret)
-
-
-def get_api_passphrase(profile_id: ProfileId) -> str:
-    return get_secret(f"API_PASSPHRASE_{profile_id.get_guid()}")
-
-
-def create_api_passphrase(profile_id: ProfileId, api_passphrase: str) -> None:
-    create_secret(f"API_PASSPHRASE_{profile_id.get_guid()}", api_passphrase)
+def set_secret(secret_name: str, secret_payload: str) -> None:
+    try:
+        secret = _get_client().get_secret(name=_get_qualified_secret_name(secret_name))
+    except NotFound:
+        create_secret(secret_name, secret_payload)
+    else:
+        stale_versions = list(
+            _get_client().list_secret_versions({"parent": secret.name})
+        )
+        _get_client().add_secret_version(
+            parent=secret.name, payload={"data": secret_payload.encode()}
+        )
+        for stale_v in stale_versions:
+            _get_client().destroy_secret_version(name=stale_v.name)

@@ -2,9 +2,9 @@ import argparse
 
 from cbpro import AuthenticatedClient
 
-from backend.core.client_helper import PROFILE_NAMESPACE_TO_API_URL
+from backend.core.cbpro_client_helper import PROFILE_NAMESPACE_TO_API_URL
 from backend.core.profile import ProfileId, create_profile, set_profile_nickname
-from backend.core.secrets import (
+from backend.core.secrets.profile_secrets import (
     create_api_b64_secret,
     create_api_key,
     create_api_passphrase,

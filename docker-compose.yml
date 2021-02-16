@@ -20,8 +20,20 @@ services:
             GOOGLE_APPLICATION_CREDENTIALS: /home/tradebot/.config/gcloud/application_default_credentials.json
         volumes:
             - ${localDevHome}/.config/gcloud:/home/tradebot/.config/gcloud:ro
+    api:
+        image: api-service:local
+        ports:
+            - "9002:9000"
+        environment:
+            PORT: "9000"
+            GCLOUD_PROJECT: ${gcloudProject}
+            GOOGLE_APPLICATION_CREDENTIALS: /home/tradebot/.config/gcloud/application_default_credentials.json
+        volumes:
+            - ${localDevHome}/.config/gcloud:/home/tradebot/.config/gcloud:ro
     frontend:
         image: coinpilot-fe:local
+        depends_on: 
+            - api
         ports:
             - "3000:3000"
         environment:
