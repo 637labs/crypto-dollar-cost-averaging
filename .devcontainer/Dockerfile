@@ -84,10 +84,15 @@ RUN . $NVM_DIR/nvm.sh \
 ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
-# App dependencies
+# Backend dependencies
 COPY requirements.txt /tmp/pip-tmp/requirements.txt
 RUN pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements.txt \
    && rm -rf /tmp/pip-tmp
+
+# Frontend dependencies
+COPY package*.json /tmp/npm-tmp/
+RUN npm install /tmp/npm-tmp/ \
+   && rm -rf /tmp/npm-tmp
 
 USER $USERNAME
 
