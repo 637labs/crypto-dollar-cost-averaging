@@ -2,6 +2,7 @@
 
 var path = require('path');
 var express = require('express');
+var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser')
 var helmet = require('helmet')
 var passport = require('passport')
@@ -10,6 +11,7 @@ var { ensureLoggedIn } = require('connect-ensure-login');
 
 var { session } = require('./session-config');
 var { CoinbaseUser } = require('./users');
+var { CoinbaseProPortfolio } = require('./portfolios');
 
 const PORT = 3000;
 const HOST = process.env.HOSTNAME;
@@ -25,16 +27,17 @@ if (process.env.NODE_ENV != 'development') {
 }
 app.use(express.static('public'));
 app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: false }))
 app.use(session());
 app.use(passport.initialize());
 app.use(passport.session());
 
 passport.serializeUser(function (user, done) {
-    done(null, user.id);
+    done(null, { id: user.id, displayName: user.displayName });
 });
 
-passport.deserializeUser(function (id, done) {
-    done(null, new CoinbaseUser(id));
+passport.deserializeUser(function ({ id, displayName }, done) {
+    done(null, new CoinbaseUser(id, displayName));
 });
 
 passport.use(new CoinbaseStrategy({
@@ -46,6 +49,7 @@ passport.use(new CoinbaseStrategy({
         console.log("Received Coinbase tokens")
         CoinbaseUser.getOrCreate(
             profile.id,
+            profile.displayName,
             function (cbUser) {
                 console.log("Successfully fetched API user")
                 cbUser.setBasicOAuthTokens(accessToken, refreshToken,
@@ -74,13 +78,32 @@ app.post('/auth/coinbase',
 );
 
 app.get('/auth/coinbase/callback',
-    passport.authenticate('coinbase', { successRedirect: '/protected', failureRedirect: '/login' })
+    passport.authenticate('coinbase', { successRedirect: '/configure', failureRedirect: '/login' })
 );
 
-app.get('/protected',
+app.get('/configure',
     ensureLoggedIn('/login'),
     function (req, res) {
-        res.send('<p>noyce</p>');
+        res.render('configure', {
+            userName: req.user.displayName
+        });
+    }
+);
+
+app.post('/api/portfolio/create',
+    ensureLoggedIn('/login'),
+    function (req, res) {
+        CoinbaseProPortfolio.create({
+            user: req.user,
+            apiKey: req.body.apiKey,
+            b64Secret: req.body.b64Secret,
+            passphrase: req.body.passphrase,
+            onSuccess: function () { res.status(200); },
+            onError: function (err) {
+                console.error(err);
+                res.status(400);
+            }
+        });
     }
 );
 

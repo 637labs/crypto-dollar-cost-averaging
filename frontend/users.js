@@ -5,11 +5,12 @@ const axios = require('axios').default;
 const API_URL = process.env.API_URL;
 
 class CoinbaseUser {
-    constructor(id) {
+    constructor(id, displayName) {
         this.id = id;
+        this.displayName = displayName;
     }
 
-    static getOrCreate(coinbaseProfileId, onSuccess, onError) {
+    static getOrCreate(coinbaseProfileId, displayName, onSuccess, onError) {
         axios({
             method: 'post',
             url: '/user/get-or-create/v1',
@@ -23,7 +24,7 @@ class CoinbaseUser {
             responseType: 'json'
         })
             .then(function (response) {
-                onSuccess(new CoinbaseUser(response.data.id))
+                onSuccess(new CoinbaseUser(response.data.id, displayName))
             })
             .catch(function (error) {
                 onError(error);
