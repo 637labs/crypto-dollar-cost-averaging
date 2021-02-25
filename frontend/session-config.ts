@@ -20,4 +20,4 @@ const session = function () {
     }
 };
 
-module.exports = { session };
+export { session };

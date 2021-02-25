@@ -1,16 +1,14 @@
 'use strict';
 
-const axios = require('axios').default;
+import { Profile as CoinbaseProfile } from 'passport-coinbase';
+import axios from 'axios';
 
 const API_URL = process.env.API_URL;
 
 class CoinbaseUser {
-    constructor(id, displayName) {
-        this.id = id;
-        this.displayName = displayName;
-    }
+    constructor(public id: string, public displayName: string) { }
 
-    static getOrCreate(coinbaseProfileId, displayName, onSuccess, onError) {
+    static getOrCreate(profile: CoinbaseProfile, onSuccess: (user: CoinbaseUser) => void, onError: (reason: any) => void) {
         axios({
             method: 'post',
             url: '/user/get-or-create/v1',
@@ -18,20 +16,20 @@ class CoinbaseUser {
             data: {
                 user: {
                     provider: 'coinbase',
-                    id: coinbaseProfileId
+                    id: profile.id
                 }
             },
             responseType: 'json'
         })
-            .then(function (response) {
-                onSuccess(new CoinbaseUser(response.data.id, displayName))
+            .then((response) => {
+                onSuccess(new CoinbaseUser(response.data.id, profile.displayName));
             })
-            .catch(function (error) {
-                onError(error);
+            .catch((reason) => {
+                onError(reason);
             });
     }
 
-    setBasicOAuthTokens(accessToken, refreshToken, onSuccess, onError) {
+    setBasicOAuthTokens(accessToken: string, refreshToken: string, onSuccess: () => void, onError: (reason: any) => void) {
         axios({
             method: 'post',
             url: '/user/oauth/basic/set/v1',
@@ -45,17 +43,17 @@ class CoinbaseUser {
             },
             responseType: 'json'
         })
-            .then(function (response) {
+            .then(() => {
                 if (onSuccess) {
                     onSuccess();
                 }
             })
-            .catch(function (error) {
+            .catch((reason) => {
                 if (onError) {
-                    onError(error);
+                    onError(reason);
                 }
             });
     }
 };
 
-module.exports = { CoinbaseUser };
+export { CoinbaseUser };

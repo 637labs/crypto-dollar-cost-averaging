@@ -1,36 +1,40 @@
 'use strict';
 
-const axios = require('axios').default;
+import axios from 'axios';
+
+import { CoinbaseUser } from './users';
 
 const API_URL = process.env.API_URL;
 
+interface PortfolioCredentials {
+    apiKey: string;
+    b64Secret: string;
+    passphrase: string;
+}
+
 class CoinbaseProPortfolio {
-    static create({ user, apiKey, b64Secret, passphrase, onSuccess, onError }) {
+    static create(user: CoinbaseUser, credentials: PortfolioCredentials, onSuccess: () => void, onError: (reason: any) => void) {
         axios({
             method: 'post',
             url: '/user/portfolio-profile/create/v1',
             baseURL: API_URL,
             data: {
                 userId: user.id,
-                profileCredentials: {
-                    apiKey,
-                    b64Secret,
-                    passphrase
-                }
+                profileCredentials: { ...credentials }
             },
             responseType: 'json'
         })
-            .then(function (response) {
+            .then(() => {
                 if (onSuccess) {
                     onSuccess();
                 }
             })
-            .catch(function (error) {
+            .catch((reason) => {
                 if (onError) {
-                    onError(error);
+                    onError(reason);
                 }
             });
     }
 };
 
-module.exports = { CoinbaseProPortfolio };
+export { CoinbaseProPortfolio };
