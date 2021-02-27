@@ -8,6 +8,10 @@ const API_URL = process.env.API_URL;
 class CoinbaseUser {
     constructor(public id: string, public displayName: string) { }
 
+    static isCoinbaseUser(obj: any): obj is CoinbaseUser {
+        return ("id" in obj && typeof obj.id === "string" && "displayName" in obj && typeof obj.displayName === "string");
+    }
+
     static getOrCreate(profile: CoinbaseProfile, onSuccess: (user: CoinbaseUser) => void, onError: (reason: any) => void) {
         axios({
             method: 'post',

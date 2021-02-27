@@ -38,7 +38,11 @@ interface SerializedUser {
 }
 
 passport.serializeUser<SerializedUser>((user, done) => {
-    done(null, { id: user.id, displayName: user.displayName });
+    if (CoinbaseUser.isCoinbaseUser(user)) {
+        done(null, { id: user.id, displayName: user.displayName });
+    } else {
+        done(Error("Failed to serialize user -- expected a CoinbaseUser"));
+    }
 });
 
 passport.deserializeUser<SerializedUser>((serUser, done) => {
@@ -88,6 +92,10 @@ app.get('/auth/coinbase/callback',
 app.get('/configure',
     ensureLoggedIn('/login'),
     (req, res) => {
+        if (!CoinbaseUser.isCoinbaseUser(req.user)) {
+            console.error("Request user is not of type CoinbaseUser");
+            return;
+        }
         res.render('configure', {
             userName: req.user.displayName
         });
@@ -97,6 +105,10 @@ app.get('/configure',
 app.post('/api/portfolio/create',
     ensureLoggedIn('/login'),
     (req, res) => {
+        if (!CoinbaseUser.isCoinbaseUser(req.user)) {
+            console.error("Request user is not of type CoinbaseUser");
+            return;
+        }
         CoinbaseProPortfolio.create(
             req.user,
             {
