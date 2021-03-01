@@ -1,6 +1,7 @@
 {
-  "name": "nickel",
-  "version": "0.0.1",
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
   "description": "Get mo' coin fo' less $$$",
   "main": "frontend/server.js",
   "scripts": {

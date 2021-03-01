@@ -91,8 +91,13 @@ RUN pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requ
 
 # Frontend dependencies
 COPY package*.json /tmp/npm-tmp/
-RUN npm install /tmp/npm-tmp/ \
+RUN npm install -g /tmp/npm-tmp/ \
    && rm -rf /tmp/npm-tmp
+
+# Client dependencies
+COPY client/package*.json /tmp/client-tmp/
+RUN npm install -g /tmp/client-tmp/ \
+   && rm -rf /tmp/client-tmp
 
 USER $USERNAME
 

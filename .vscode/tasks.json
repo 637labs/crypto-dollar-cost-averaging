@@ -39,6 +39,18 @@
             "problemMatcher": []
         },
         {
+            "label": "Compile Client",
+            "type": "shell",
+            "command": "npm run build",
+            "options": {
+                "cwd": "${workspaceFolder}/client",
+                "env": {
+                    "BASH_ENV": "${workspaceFolder}/.vscode/local.env"
+                }
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "Build API Service",
             "type": "shell",
             "command": "docker build -f builds/api/Dockerfile . -t api-service:local",
@@ -73,6 +85,18 @@
             "problemMatcher": []
         },
         {
+            "label": "Run Webpack DevServer",
+            "type": "shell",
+            "command": "npm run start",
+            "options": {
+                "cwd": "${workspaceFolder}/client",
+                "env": {
+                    "BASH_ENV": "${workspaceFolder}/.vscode/local.env"
+                }
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "Run Services",
             "dependsOn": [
                 "Build Services"
@@ -85,6 +109,14 @@
                     "BASH_ENV": "${workspaceFolder}/.vscode/local.env"
                 }
             },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run App",
+            "dependsOn": [
+                "Build Services",
+                "Run Webpack DevServer"
+            ],
             "problemMatcher": []
         },
         {
