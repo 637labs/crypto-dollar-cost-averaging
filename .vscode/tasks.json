@@ -114,7 +114,7 @@
         {
             "label": "Run App",
             "dependsOn": [
-                "Build Services",
+                "Run Services",
                 "Run Webpack DevServer"
             ],
             "problemMatcher": []

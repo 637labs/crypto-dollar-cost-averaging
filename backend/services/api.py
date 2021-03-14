@@ -1,10 +1,18 @@
 import sys
 
-from cbpro import AuthenticatedClient
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify, request
 
-from backend.core.cbpro_client_helper import PROFILE_NAMESPACE_TO_API_URL
-from backend.core.profile import ProfileId, get_or_create_profile, DEFAULT_NS
+from backend.core.cbpro_client_helper import (
+    PROFILE_NAMESPACE_TO_API_URL,
+    CbProAuthenticatedClient,
+    get_client as get_cbpro_client,
+)
+from backend.core.profile import (
+    DEFAULT_NS,
+    ProfileId,
+    get_for_user,
+    get_or_create_profile,
+)
 from backend.core.secrets.profile_secrets import (
     set_api_b64_secret,
     set_api_key,
@@ -15,7 +23,6 @@ from backend.core.secrets.user_secrets import (
     set_basic_refresh_token,
 )
 from backend.core.user import get_by_guid, get_or_create_user
-
 
 app = Flask(__name__)
 
@@ -55,7 +62,7 @@ def handle_set_basic_oauth_creds():
     return ("", 200)
 
 
-def _get_profile_identifier(client: AuthenticatedClient) -> str:
+def _get_profile_identifier(client: CbProAuthenticatedClient) -> str:
     profile_ids = {acc["profile_id"] for acc in client.get_accounts()}
     assert len(profile_ids) == 1
     [identifier] = [p_id for p_id in profile_ids]
@@ -68,6 +75,11 @@ def _set_profile_secrets(
     set_api_key(profile_id, api_key)
     set_api_b64_secret(profile_id, api_secret)
     set_api_passphrase(profile_id, api_passphrase)
+
+
+def _get_portfolio_name(client: CbProAuthenticatedClient, profile_id: ProfileId) -> str:
+    profile_data = client.get_profile(profile_id.identifier)
+    return profile_data["name"]
 
 
 @app.route("/user/portfolio-profile/create/v1", methods=["POST"])
@@ -88,7 +100,9 @@ def handle_create_cbpro_profile():
 
     # fetch CBPro profile id
     api_url = PROFILE_NAMESPACE_TO_API_URL[namespace]
-    client = AuthenticatedClient(api_key, api_secret, api_passphrase, api_url=api_url)
+    client = CbProAuthenticatedClient(
+        api_key, api_secret, api_passphrase, api_url=api_url
+    )
     identifier = _get_profile_identifier(client)
 
     # create profile
@@ -98,4 +112,28 @@ def handle_create_cbpro_profile():
     # Flush the stdout to avoid log buffering.
     sys.stdout.flush()
 
-    return ("", 200)
+    return jsonify(
+        id=profile_id.get_guid(), displayName=_get_portfolio_name(client, profile_id)
+    )
+
+
+@app.route("/user/portfolio-profile/view/v1", methods=["POST"])
+def handle_view_cbpro_profile():
+    envelope = request.get_json()
+
+    try:
+        user_id = get_by_guid(envelope["userId"])
+
+        namespace = envelope.get("profileNamespace", DEFAULT_NS)
+    except KeyError as e:
+        return (str(e), 400)
+
+    profile_id = get_for_user(user_id, namespace)
+    if profile_id:
+        client = get_cbpro_client(profile_id)
+        return jsonify(
+            id=profile_id.get_guid(),
+            displayName=_get_portfolio_name(client, profile_id),
+        )
+    else:
+        return ("", 404)

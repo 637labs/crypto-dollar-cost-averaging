@@ -1,5 +1,6 @@
 import base64
 import os
+from typing import Optional
 
 from backend.core.firestore_helper import get_db, lock_on_key, transactional
 from backend.core.user import UserId
@@ -154,3 +155,17 @@ def get_or_create_profile(
 ) -> ProfileId:
     transaction = get_db().transaction()
     return _get_or_create_profile(transaction, namespace, identifier, user)
+
+
+def get_for_user(user: UserId, namespace: str) -> Optional[ProfileId]:
+    query = (
+        get_db()
+        .collection(_PROFILES_COLLECTION)
+        .where("namespace", "==", namespace)
+        .where("user", "==", user.get_guid())
+    )
+    matches = list(query.stream())
+    if matches:
+        [profile] = matches
+        return ProfileId(profile.get("namespace"), profile.get("identifier"))
+    return None

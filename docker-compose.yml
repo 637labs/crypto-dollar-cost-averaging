@@ -39,6 +39,7 @@ services:
         environment:
             GOOGLE_APPLICATION_CREDENTIALS: /home/tradebot/.config/gcloud/application_default_credentials.json
             HOSTNAME: "0.0.0.0"
+            AUTH_CALLBACK_URL_BASE: "http://0.0.0.0:3001"
             COINBASE_CLIENT_ID: ${cbClientId}
             COINBASE_CLIENT_SECRET: ${cbClientSecret}
             SESSION_SECRET: ${sessSecret}

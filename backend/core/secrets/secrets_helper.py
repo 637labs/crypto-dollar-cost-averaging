@@ -61,4 +61,5 @@ def set_secret(secret_name: str, secret_payload: str) -> None:
             parent=secret.name, payload={"data": secret_payload.encode()}
         )
         for stale_v in stale_versions:
-            _get_client().destroy_secret_version(name=stale_v.name)
+            if stale_v.state != secretmanager.SecretVersion.State.DESTROYED:
+                _get_client().destroy_secret_version(name=stale_v.name)

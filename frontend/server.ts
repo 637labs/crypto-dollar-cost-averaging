@@ -1,31 +1,33 @@
 'use strict';
 
-var path = require('path');
+import path from 'path';
 import express from 'express';
-var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser')
-var helmet = require('helmet')
+import bodyParser from 'body-parser';
+const cookieParser = require('cookie-parser');
+import helmet from 'helmet';
 import passport from 'passport';
 import { Strategy as CoinbaseStrategy } from 'passport-coinbase';
-var { ensureLoggedIn } = require('connect-ensure-login');
 
 import { session } from './session-config';
 import { CoinbaseUser } from './users';
 import { CoinbaseProPortfolio } from './portfolios';
 
+const STATUS_UNAUTHORIZED = 401;
+
 const PORT = 3000;
 const HOST: string = process.env.HOSTNAME!;
 const ROOT_URL = process.env.NODE_ENV == 'development' ? `http://${HOST}:${PORT}` : `https://${HOST}:${PORT}`;
+const CLIENT_BUILD_DIR: string = process.env.CLIENT_BUILD_PATH!;
+
+const AUTH_CALLBACK_URL_BASE = process.env.AUTH_CALLBACK_URL_BASE || ROOT_URL;
+
 
 const app = express();
-
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
 
 if (process.env.NODE_ENV != 'development') {
     app.use(helmet());
 }
-app.use(express.static('public'));
+app.use(express.static(CLIENT_BUILD_DIR));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(session());
@@ -52,7 +54,7 @@ passport.deserializeUser<SerializedUser>((serUser, done) => {
 passport.use(new CoinbaseStrategy({
     clientID: process.env.COINBASE_CLIENT_ID!,
     clientSecret: process.env.COINBASE_CLIENT_SECRET!,
-    callbackURL: `${ROOT_URL}/auth/coinbase/callback`
+    callbackURL: `${AUTH_CALLBACK_URL_BASE}/auth/coinbase/callback`
 },
     function (accessToken, refreshToken, profile, cb) {
         console.log("Received Coinbase tokens")
@@ -77,33 +79,41 @@ passport.use(new CoinbaseStrategy({
     },
 ));
 
-app.get('/login', function (req, res) {
-    res.render('login')
+function ensureLoggedIn() {
+    return function (req: express.Request, res: express.Response, next: express.NextFunction) {
+        if (!req.isAuthenticated || !req.isAuthenticated()) {
+            return res.sendStatus(STATUS_UNAUTHORIZED);
+        }
+        next();
+    }
+};
+
+app.get('/', function (req, res) {
+    res.sendFile(path.join(CLIENT_BUILD_DIR, 'index.html'));
 });
 
 app.post('/auth/coinbase',
-    passport.authenticate('coinbase', { failureRedirect: '/login' })
+    passport.authenticate('coinbase', { failureRedirect: '/' })
 );
 
 app.get('/auth/coinbase/callback',
-    passport.authenticate('coinbase', { successRedirect: '/configure', failureRedirect: '/login' })
+    passport.authenticate('coinbase', { successRedirect: '/', failureRedirect: '/' })
 );
 
-app.get('/configure',
-    ensureLoggedIn('/login'),
+app.get('/api/active-user',
+    ensureLoggedIn(),
     (req, res) => {
         if (!CoinbaseUser.isCoinbaseUser(req.user)) {
             console.error("Request user is not of type CoinbaseUser");
             return;
         }
-        res.render('configure', {
-            userName: req.user.displayName
-        });
+        res.status(200).json({ displayName: req.user.displayName });
     }
 );
 
 app.post('/api/portfolio/create',
-    ensureLoggedIn('/login'),
+    ensureLoggedIn(),
+    bodyParser.json(),
     (req, res) => {
         if (!CoinbaseUser.isCoinbaseUser(req.user)) {
             console.error("Request user is not of type CoinbaseUser");
@@ -116,10 +126,27 @@ app.post('/api/portfolio/create',
                 b64Secret: req.body.b64Secret,
                 passphrase: req.body.passphrase
             },
-            () => { res.status(200); },
+            (portfolio: CoinbaseProPortfolio) => { res.status(200).json({ portfolioName: portfolio.displayName }); },
             (err) => {
                 console.error(err);
-                res.status(400);
+                res.sendStatus(400);
+            }
+        );
+    }
+);
+
+app.get('/api/portfolio',
+    ensureLoggedIn(),
+    (req, res) => {
+        if (!CoinbaseUser.isCoinbaseUser(req.user)) {
+            console.error("Request user is not of type CoinbaseUser");
+            return;
+        }
+        CoinbaseProPortfolio.get(
+            req.user,
+            (portfolio: CoinbaseProPortfolio) => { res.status(200).json({ portfolioName: portfolio.displayName }); },
+            () => {
+                res.sendStatus(404);
             }
         );
     }

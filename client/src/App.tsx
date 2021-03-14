@@ -1,26 +1,52 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import { ConfigurationPage } from './ConfigurationPage';
+import { LoginModal } from './Login';
+import { getJson } from './HttpUtils';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+interface State {
+  showLogin: boolean;
+  showConfigPage: boolean;
+  userDisplayName: string | null;
+}
+
+class App extends React.Component<{}, State> {
+  state = { showLogin: false, showConfigPage: false, userDisplayName: null };
+
+  componentDidMount() {
+    getJson('/api/active-user')
+      .then(response => {
+        if (response.ok) {
+          response.json()
+            .then(result => this.setState({ userDisplayName: result.displayName, showConfigPage: true, showLogin: false }));
+        } else if (response.status === 401) {
+          this.setState({ showLogin: true, showConfigPage: false })
+        } else {
+          console.error(`Fetching active user returned with non-OK status: ${response.status}`)
+          this.setState({ showLogin: true });
+        }
+      })
+      .catch(error => {
+        this.setState({ showLogin: true });
+        console.error(`Failed to fetch active user: ${error}`)
+      })
+  }
+
+  render() {
+    const { showLogin, showConfigPage, userDisplayName } = this.state;
+    return (
+      <div className="App">
+        {showLogin && (<LoginModal />)}
+        {showConfigPage && (
+          <ConfigurationPage
+            userDisplayName={userDisplayName || ''}
+            onAuthNeeded={() => { this.setState({ showLogin: true, showConfigPage: false, userDisplayName: null }) }}
+          />
+        )}
+      </div>
+    );
+  }
 }
 
 export default App;
