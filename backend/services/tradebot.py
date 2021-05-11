@@ -3,10 +3,12 @@ import os
 import sys
 from typing import AnyStr, Dict, List, Tuple
 
-from cbpro import AuthenticatedClient
 from flask import Flask, request
 
-from backend.core.client_helper import get_client
+from backend.core.cbpro_client_helper import (
+    get_client as get_cbpro_client,
+    CbProAuthenticatedClient,
+)
 from backend.core.orders import DailyTargetDepositReached, place_market_buy
 from backend.core.profile import ProfileId
 from backend.core.pubsub_helper import get_event_data_dict
@@ -22,7 +24,7 @@ app = Flask(__name__)
 
 
 def execute_trades(
-    client: AuthenticatedClient, profile: ProfileId, specs: List[TradeSpec]
+    client: CbProAuthenticatedClient, profile: ProfileId, specs: List[TradeSpec]
 ):
     for spec in specs:
         try:
@@ -42,7 +44,7 @@ def process_profile_request(profile: ProfileId) -> Tuple[str, int]:
         )
     )
 
-    client = get_client(profile)
+    client = get_cbpro_client(profile)
     specs = get_trade_specs(profile)
     execute_trades(client, profile, specs)
 
@@ -62,7 +64,7 @@ def process_product_request(
             }
         )
     )
-    client = get_client(profile)
+    client = get_cbpro_client(profile)
     spec = get_trade_spec(profile, product_id)
 
     try:

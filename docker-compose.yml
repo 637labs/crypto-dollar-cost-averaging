@@ -17,5 +17,35 @@ services:
             PORT: "9000"
             GCLOUD_PROJECT: ${gcloudProject}
             TARGET_TOPIC: ${tradebotTopic}
+            GOOGLE_APPLICATION_CREDENTIALS: /home/tradebot/.config/gcloud/application_default_credentials.json
         volumes:
             - ${localDevHome}/.config/gcloud:/home/tradebot/.config/gcloud:ro
+    api:
+        image: api-service:local
+        ports:
+            - "9002:9000"
+        environment:
+            PORT: "9000"
+            GCLOUD_PROJECT: ${gcloudProject}
+            GOOGLE_APPLICATION_CREDENTIALS: /home/tradebot/.config/gcloud/application_default_credentials.json
+        volumes:
+            - ${localDevHome}/.config/gcloud:/home/tradebot/.config/gcloud:ro
+    frontend:
+        image: coinpilot-fe:local
+        depends_on: 
+            - api
+        ports:
+            - "3001:3000"
+        environment:
+            GOOGLE_APPLICATION_CREDENTIALS: /home/tradebot/.config/gcloud/application_default_credentials.json
+            HOSTNAME: "0.0.0.0"
+            AUTH_CALLBACK_URL_BASE: "http://0.0.0.0:3001"
+            COINBASE_CLIENT_ID: ${cbClientId}
+            COINBASE_CLIENT_SECRET: ${cbClientSecret}
+            SESSION_SECRET: ${sessSecret}
+            NODE_ENV: "development"
+            # SERVER_SESSION: "true"
+            API_URL: "http://api:9000"
+        volumes:
+            - ${localDevHome}/.config/gcloud:/home/tradebot/.config/gcloud:ro
+

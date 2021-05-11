@@ -27,12 +27,73 @@
             }
         },
         {
+            "label": "Compile Frontend",
+            "type": "shell",
+            "command": "npx babel --extensions \".ts\" --copy-files frontend --out-dir fe_lib",
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "BASH_ENV": "${workspaceFolder}/.vscode/local.env"
+                }
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Compile Client",
+            "type": "shell",
+            "command": "npm run build",
+            "options": {
+                "cwd": "${workspaceFolder}/client",
+                "env": {
+                    "BASH_ENV": "${workspaceFolder}/.vscode/local.env"
+                }
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build API Service",
+            "type": "shell",
+            "command": "docker build -f builds/api/Dockerfile . -t api-service:local",
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "BASH_ENV": "${workspaceFolder}/.vscode/local.env"
+                }
+            }
+        },
+        {
+            "label": "Build Frontend",
+            "type": "shell",
+            "command": "docker build -f builds/frontend/Dockerfile . -t coinpilot-fe:local",
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "BASH_ENV": "${workspaceFolder}/.vscode/local.env"
+                }
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "Build Services",
             "dependsOn": [
                 "Build Tradebot",
-                "Build Schedule Fanout"
+                "Build Schedule Fanout",
+                "Build API Service",
+                "Build Frontend",
             ],
             "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Webpack DevServer",
+            "type": "shell",
+            "command": "npm run start",
+            "options": {
+                "cwd": "${workspaceFolder}/client",
+                "env": {
+                    "BASH_ENV": "${workspaceFolder}/.vscode/local.env"
+                }
+            },
             "problemMatcher": []
         },
         {
@@ -41,13 +102,21 @@
                 "Build Services"
             ],
             "type": "shell",
-            "command": "gcloudProject=$GCLOUD_PROJECT_ID localDevHome=$LOCAL_DEV_HOME tradebotTopic=$TRADEBOT_PUBSUB_TOPIC docker-compose -f docker-compose.yml up",
+            "command": "gcloudProject=$GCLOUD_PROJECT_ID localDevHome=$LOCAL_DEV_HOME tradebotTopic=$TRADEBOT_PUBSUB_TOPIC cbClientId=$COINBASE_CLIENT_ID cbClientSecret=$COINBASE_CLIENT_SECRET sessSecret=$EXPRSS_SESS_SECRET docker-compose -f docker-compose.yml up",
             "options": {
                 "cwd": "${workspaceFolder}",
                 "env": {
                     "BASH_ENV": "${workspaceFolder}/.vscode/local.env"
                 }
             },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run App",
+            "dependsOn": [
+                "Run Services",
+                "Run Webpack DevServer"
+            ],
             "problemMatcher": []
         },
         {
@@ -73,7 +142,7 @@
                 }
             },
             "problemMatcher": []
-        },
+        }
     ],
     "inputs": [
         {

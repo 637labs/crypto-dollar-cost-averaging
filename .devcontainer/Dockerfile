@@ -71,10 +71,33 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
    && apt-get clean -y \
    && rm -rf /var/lib/apt/lists/*
 
-# App dependencies
+ENV NVM_DIR /usr/local/nvm
+ENV NODE_VERSION 14.15.5
+# Install nvm
+RUN mkdir $NVM_DIR && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
+# Install node and npm
+RUN . $NVM_DIR/nvm.sh \
+   && nvm install $NODE_VERSION \
+   && nvm alias default $NODE_VERSION \
+   && nvm use default
+# Add node and npm to path so the commands are available
+ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
+ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+
+# Backend dependencies
 COPY requirements.txt /tmp/pip-tmp/requirements.txt
 RUN pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements.txt \
    && rm -rf /tmp/pip-tmp
+
+# Frontend dependencies
+COPY package*.json /tmp/npm-tmp/
+RUN npm install -g /tmp/npm-tmp/ \
+   && rm -rf /tmp/npm-tmp
+
+# Client dependencies
+COPY client/package*.json /tmp/client-tmp/
+RUN npm install -g /tmp/client-tmp/ \
+   && rm -rf /tmp/client-tmp
 
 USER $USERNAME
 

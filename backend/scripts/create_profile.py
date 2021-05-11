@@ -2,12 +2,12 @@ import argparse
 
 from cbpro import AuthenticatedClient
 
-from backend.core.client_helper import PROFILE_NAMESPACE_TO_API_URL
+from backend.core.cbpro_client_helper import PROFILE_NAMESPACE_TO_API_URL
 from backend.core.profile import ProfileId, create_profile, set_profile_nickname
-from backend.core.secrets import (
-    create_api_b64_secret,
-    create_api_key,
-    create_api_passphrase,
+from backend.core.secrets.profile_secrets import (
+    set_api_b64_secret,
+    set_api_key,
+    set_api_passphrase,
 )
 
 
@@ -28,12 +28,12 @@ def get_profile_identifier(client: AuthenticatedClient) -> str:
     return identifier
 
 
-def create_secrets(
+def set_secrets(
     profile_id: ProfileId, api_key: str, api_secret: str, api_passphrase: str
 ) -> None:
-    create_api_key(profile_id, api_key)
-    create_api_b64_secret(profile_id, api_secret)
-    create_api_passphrase(profile_id, api_passphrase)
+    set_api_key(profile_id, api_key)
+    set_api_b64_secret(profile_id, api_secret)
+    set_api_passphrase(profile_id, api_passphrase)
 
 
 if __name__ == "__main__":
@@ -57,5 +57,5 @@ if __name__ == "__main__":
         set_profile_nickname(profile_id, args.profile_nickname)
 
     print("Creating secrets...")
-    create_secrets(profile_id, args.api_key, args.api_secret, args.api_passphrase)
+    set_secrets(profile_id, args.api_key, args.api_secret, args.api_passphrase)
     print("Done")
