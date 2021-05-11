@@ -1,6 +1,11 @@
 import React from 'react';
-import { Form, InputOnChangeData, Message } from 'semantic-ui-react';
+import { Button, TextField, LinearProgress, Snackbar } from '@material-ui/core';
+import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
 import { postJson } from './HttpUtils';
+
+function Alert(props: AlertProps) {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 interface ApiKeyFormProps {
     onSuccess: (portfolioName: string) => void;
@@ -25,11 +30,11 @@ class ApiKeyForm extends React.Component<ApiKeyFormProps, State> {
         this.state = { apiKey: '', secret: '', passphrase: '', loading: false, submissionSucceeded: false, submissionFailed: false, failureMessage: '' };
     }
 
-    handleApiKeyChange = (event: React.ChangeEvent<HTMLInputElement>, data: InputOnChangeData) => this.setState({ apiKey: data.value });
+    handleApiKeyChange = (event: React.ChangeEvent<HTMLInputElement>) => this.setState({ apiKey: event.target.value });
 
-    handleSecretChange = (event: React.ChangeEvent<HTMLInputElement>, data: InputOnChangeData) => this.setState({ secret: data.value });
+    handleSecretChange = (event: React.ChangeEvent<HTMLInputElement>) => this.setState({ secret: event.target.value });
 
-    handlePassphraseChange = (event: React.ChangeEvent<HTMLInputElement>, data: InputOnChangeData) => this.setState({ passphrase: data.value });
+    handlePassphraseChange = (event: React.ChangeEvent<HTMLInputElement>) => this.setState({ passphrase: event.target.value });
 
     handleSubmit = () => {
         const { apiKey, secret, passphrase } = this.state;
@@ -63,43 +68,42 @@ class ApiKeyForm extends React.Component<ApiKeyFormProps, State> {
         return (
             <div>
                 <h3>CoinbasePro - portfolio API Key</h3>
-                <Form onSubmit={this.handleSubmit} loading={loading}>
-                    <Form.Group>
-                        <Form.Input
+                {loading && (
+                    <LinearProgress />
+                )}
+                {!loading && !submissionSucceeded && (
+                    <div>
+                        <TextField
                             label='API Key'
                             name='apiKey'
                             value={apiKey}
                             onChange={this.handleApiKeyChange}
                         />
-                        <Form.Input
+                        <TextField
                             label='Secret'
                             name='secret'
                             value={secret}
                             onChange={this.handleSecretChange}
                         />
-                        <Form.Input
+                        <TextField
                             label='Passphrase'
                             name='passphrase'
                             value={passphrase}
                             onChange={this.handlePassphraseChange}
                         />
-                        <Form.Button content='Submit' />
-                        {submissionSucceeded && (
-                            <Message
-                                success
-                                header='Success'
-                                content="API key was submitted and verified"
-                            />
-                        )}
-                        {submissionFailed && (
-                            <Message
-                                error
-                                header='Submission Failed'
-                                content={failureMessage || 'There was an issue submitting your API key'}
-                            />
-                        )}
-                    </Form.Group>
-                </Form>
+                        <Button onClick={this.handleSubmit}>Submit</Button>
+                    </div>
+                )}
+                <Snackbar open={submissionSucceeded} autoHideDuration={6000}>
+                    <Alert severity="success">
+                        Success: API key was submitted and verified
+                    </Alert>
+                </Snackbar>
+                <Snackbar open={submissionFailed}>
+                    <Alert severity="error">
+                        Submission Failed: {failureMessage || 'There was an issue submitting your API key'}
+                    </Alert>
+                </Snackbar>
             </div>
         );
     }
