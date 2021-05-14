@@ -14,7 +14,7 @@ import { CoinbaseProPortfolio } from './portfolios';
 
 const STATUS_UNAUTHORIZED = 401;
 
-const PORT = 3000;
+const PORT = process.env.PORT !== undefined ? parseInt(process.env.PORT) : 3000;
 const HOST: string = process.env.HOSTNAME!;
 const ROOT_URL = process.env.NODE_ENV == 'development' ? `http://${HOST}:${PORT}` : `https://${HOST}:${PORT}`;
 const CLIENT_BUILD_DIR: string = process.env.CLIENT_BUILD_PATH!;
@@ -153,5 +153,5 @@ app.get('/api/portfolio',
 );
 
 
-app.listen(PORT, HOST);
+app.listen(PORT);
 console.log(`Running on ${ROOT_URL}`);
