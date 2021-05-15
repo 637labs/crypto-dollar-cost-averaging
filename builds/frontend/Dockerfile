@@ -52,6 +52,7 @@ COPY --from=build-stage /frontend/app-lib ./frontend
 COPY --from=build-stage /client/build ./client
 ENV CLIENT_BUILD_PATH /usr/src/app/client
 
-EXPOSE 3000
+# Avoids issues with Content Security Policy by not bundling the JS with index.html page
+ENV INLINE_RUNTIME_CHUNK=false
 
 CMD [ "node", "frontend/server.js" ]
