@@ -28,7 +28,8 @@ COPY client/public ./public
 
 # Build
 COPY client/tsconfig.json ./tsconfig.json
-RUN ./node_modules/.bin/react-scripts build
+# avoids issues with Content Security Policy by not bundling the JS with index.html page
+RUN INLINE_RUNTIME_CHUNK=false ./node_modules/.bin/react-scripts build
 ##################################  Client  ##################################
 
 FROM node:14.15.5
@@ -51,8 +52,5 @@ COPY --from=build-stage /frontend/app-lib ./frontend
 # Add client build
 COPY --from=build-stage /client/build ./client
 ENV CLIENT_BUILD_PATH /usr/src/app/client
-
-# Avoids issues with Content Security Policy by not bundling the JS with index.html page
-ENV INLINE_RUNTIME_CHUNK=false
 
 CMD [ "node", "frontend/server.js" ]

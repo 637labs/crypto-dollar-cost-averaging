@@ -32,5 +32,5 @@ steps:
             gcloud run deploy ${_SERVICE_NAME} \
             --image ${_GCR_HOSTNAME}/$PROJECT_ID/$REPO_NAME-frontend:$BRANCH_NAME \
             --region ${_SERVICE_REGION} --project $PROJECT_ID \
-            --platform managed --no-allow-unauthenticated
+            --platform managed --allow-unauthenticated
 timeout: 300s
