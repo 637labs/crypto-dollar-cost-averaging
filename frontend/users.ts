@@ -1,9 +1,7 @@
 'use strict';
 
 import { Profile as CoinbaseProfile } from 'passport-coinbase';
-import axios from 'axios';
-
-const API_URL = process.env.API_URL;
+import { ApiService } from './api';
 
 class CoinbaseUser {
     constructor(public id: string, public displayName: string) { }
@@ -13,50 +11,52 @@ class CoinbaseUser {
     }
 
     static getOrCreate(profile: CoinbaseProfile, onSuccess: (user: CoinbaseUser) => void, onError: (reason: any) => void) {
-        axios({
-            method: 'post',
-            url: '/user/get-or-create/v1',
-            baseURL: API_URL,
-            data: {
-                user: {
-                    provider: 'coinbase',
-                    id: profile.id
-                }
+        ApiService.authenticatedRequest(
+            {
+                method: 'post',
+                url: '/user/get-or-create/v1',
+                data: {
+                    user: {
+                        provider: 'coinbase',
+                        id: profile.id
+                    }
+                },
+                responseType: 'json'
             },
-            responseType: 'json'
-        })
-            .then((response) => {
+            (response: { data: { id: string; }; }) => {
                 onSuccess(new CoinbaseUser(response.data.id, profile.displayName));
-            })
-            .catch((reason) => {
+            },
+            (reason: any) => {
                 onError(reason);
-            });
+            }
+        );
     }
 
     setBasicOAuthTokens(accessToken: string, refreshToken: string, onSuccess: () => void, onError: (reason: any) => void) {
-        axios({
-            method: 'post',
-            url: '/user/oauth/basic/set/v1',
-            baseURL: API_URL,
-            data: {
-                userId: this.id,
-                oauthCredentials: {
-                    accessToken,
-                    refreshToken
-                }
+        ApiService.authenticatedRequest(
+            {
+                method: 'post',
+                url: '/user/oauth/basic/set/v1',
+                data: {
+                    userId: this.id,
+                    oauthCredentials: {
+                        accessToken,
+                        refreshToken
+                    }
+                },
+                responseType: 'json'
             },
-            responseType: 'json'
-        })
-            .then(() => {
+            () => {
                 if (onSuccess) {
                     onSuccess();
                 }
-            })
-            .catch((reason) => {
+            },
+            (reason) => {
                 if (onError) {
                     onError(reason);
                 }
-            });
+            }
+        );
     }
 };
 

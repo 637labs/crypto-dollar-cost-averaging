@@ -1,10 +1,7 @@
 'use strict';
 
-import axios from 'axios';
-
 import { CoinbaseUser } from './users';
-
-const API_URL = process.env.API_URL;
+import { ApiService } from './api';
 
 interface PortfolioCredentials {
     apiKey: string;
@@ -21,26 +18,27 @@ class CoinbaseProPortfolio {
         onSuccess: (portfolio: CoinbaseProPortfolio) => void,
         onError: (reason: any) => void
     ) {
-        axios({
-            method: 'post',
-            url: '/user/portfolio-profile/create/v1',
-            baseURL: API_URL,
-            data: {
-                userId: user.id,
-                profileCredentials: { ...credentials }
+        ApiService.authenticatedRequest(
+            {
+                method: 'post',
+                url: '/user/portfolio-profile/create/v1',
+                data: {
+                    userId: user.id,
+                    profileCredentials: { ...credentials }
+                },
+                responseType: 'json'
             },
-            responseType: 'json'
-        })
-            .then((response) => {
+            (response) => {
                 if (onSuccess) {
                     onSuccess(new CoinbaseProPortfolio(response.data.id, response.data.displayName));
                 }
-            })
-            .catch((reason) => {
+            },
+            (reason) => {
                 if (onError) {
                     onError(reason);
                 }
-            });
+            }
+        );
     }
 
     static get(
@@ -48,25 +46,26 @@ class CoinbaseProPortfolio {
         onSuccess: (portfolio: CoinbaseProPortfolio) => void,
         onFailure: () => void
     ) {
-        axios({
-            method: 'post',
-            url: '/user/portfolio-profile/view/v1',
-            baseURL: API_URL,
-            data: {
-                userId: user.id,
+        ApiService.authenticatedRequest(
+            {
+                method: 'post',
+                url: '/user/portfolio-profile/view/v1',
+                data: {
+                    userId: user.id,
+                },
+                responseType: 'json'
             },
-            responseType: 'json'
-        })
-            .then((response) => {
+            (response) => {
                 if (onSuccess) {
                     onSuccess(new CoinbaseProPortfolio(response.data.id, response.data.displayName));
                 }
-            })
-            .catch(() => {
+            },
+            () => {
                 if (onFailure) {
                     onFailure();
                 }
-            });
+            }
+        );
     }
 };
 
