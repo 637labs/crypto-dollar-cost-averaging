@@ -9,8 +9,13 @@ interface PortfolioCredentials {
     passphrase: string;
 }
 
+interface TradeSpec {
+    productId: string;
+    dailyTargetAmount: number;
+}
+
 class CoinbaseProPortfolio {
-    constructor(public id: string, public displayName: string) { }
+    constructor(public id: string, public displayName: string, public tradeSpecs: TradeSpec[]) { }
 
     static create(
         user: CoinbaseUser,
@@ -30,7 +35,7 @@ class CoinbaseProPortfolio {
             },
             (response) => {
                 if (onSuccess) {
-                    onSuccess(new CoinbaseProPortfolio(response.data.id, response.data.displayName));
+                    onSuccess(new CoinbaseProPortfolio(response.data.id, response.data.displayName, []));
                 }
             },
             (reason) => {
@@ -57,7 +62,7 @@ class CoinbaseProPortfolio {
             },
             (response) => {
                 if (onSuccess) {
-                    onSuccess(new CoinbaseProPortfolio(response.data.id, response.data.displayName));
+                    onSuccess(new CoinbaseProPortfolio(response.data.id, response.data.displayName, response.data.tradeSpecs));
                 }
             },
             () => {

@@ -144,7 +144,12 @@ app.get('/api/portfolio',
         }
         CoinbaseProPortfolio.get(
             req.user,
-            (portfolio: CoinbaseProPortfolio) => { res.status(200).json({ portfolioName: portfolio.displayName }); },
+            (portfolio: CoinbaseProPortfolio) => {
+                res.status(200).json({
+                    portfolioName: portfolio.displayName,
+                    tradeSpecs: portfolio.tradeSpecs
+                });
+            },
             () => {
                 res.sendStatus(404);
             }

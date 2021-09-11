@@ -8,6 +8,7 @@ SERVER_TIMESTAMP = firestore.SERVER_TIMESTAMP
 transactional = firestore.transactional
 Transaction = firestore.Transaction
 OrderDescending = firestore.Query.DESCENDING
+DocumentSnapshot = firestore.DocumentSnapshot
 
 
 def get_db():
