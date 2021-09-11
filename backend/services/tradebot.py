@@ -17,7 +17,7 @@ from backend.core.trade_spec import (
     ProductId,
     TradeSpec,
     get_trade_spec,
-    get_trade_specs,
+    legacy_get_trade_specs,
 )
 
 app = Flask(__name__)
@@ -45,7 +45,7 @@ def process_profile_request(profile: ProfileId) -> Tuple[str, int]:
     )
 
     client = get_cbpro_client(profile)
-    specs = get_trade_specs(profile)
+    specs = legacy_get_trade_specs(profile)
     execute_trades(client, profile, specs)
 
     return ("", 204)

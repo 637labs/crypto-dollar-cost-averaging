@@ -18,6 +18,7 @@ from backend.core.secrets.profile_secrets import (
     set_api_key,
     set_api_passphrase,
 )
+from backend.core.trade_spec import get_all_trade_specs
 from backend.core.secrets.user_secrets import (
     set_basic_access_token,
     set_basic_refresh_token,
@@ -131,9 +132,13 @@ def handle_view_cbpro_profile():
     profile_id = get_for_user(user_id, namespace)
     if profile_id:
         client = get_cbpro_client(profile_id)
+        trade_specs = get_all_trade_specs(profile_id)
         return jsonify(
             id=profile_id.get_guid(),
             displayName=_get_portfolio_name(client, profile_id),
+            tradeSpecs=[
+                spec.to_dict() for spec in sorted(trade_specs, key=lambda s: s.product)
+            ],
         )
     else:
         return ("", 404)
