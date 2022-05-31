@@ -1,6 +1,6 @@
 import os
 
-from cbpro import AuthenticatedClient
+from coinbasepro import AuthenticatedClient
 
 from .profile import CBPRO_BETA_NS, LOCAL_NS, SANDBOX_NS, ProfileId
 from backend.core.secrets.profile_secrets import (

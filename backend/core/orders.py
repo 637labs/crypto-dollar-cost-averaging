@@ -2,7 +2,7 @@ import base64
 import uuid
 from datetime import date
 
-from cbpro import AuthenticatedClient
+from coinbasepro import AuthenticatedClient
 
 from .firestore_helper import (
     SERVER_TIMESTAMP,

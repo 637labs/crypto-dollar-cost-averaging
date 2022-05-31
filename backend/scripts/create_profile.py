@@ -1,6 +1,6 @@
 import argparse
 
-from cbpro import AuthenticatedClient
+from coinbasepro import AuthenticatedClient
 
 from backend.core.cbpro_client_helper import PROFILE_NAMESPACE_TO_API_URL
 from backend.core.profile import ProfileId, create_profile, set_profile_nickname

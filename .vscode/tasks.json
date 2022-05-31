@@ -134,7 +134,7 @@
         {
             "label": "Configure Deposits",
             "type": "shell",
-            "command": "python -m app.scripts.configure_target_deposits --profile-nickname=${input:profileNickname} ${input:depositSpecs}",
+            "command": "python -m backend.scripts.configure_target_deposits --profile-nickname=${input:profileNickname} ${input:depositSpecs}",
             "options": {
                 "cwd": "${workspaceFolder}",
                 "env": {
