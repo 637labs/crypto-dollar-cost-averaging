@@ -26,6 +26,7 @@ import FilterHdrIcon from '@material-ui/icons/FilterHdr';
 import DirectionsBusIcon from '@material-ui/icons/DirectionsBus';
 
 import { AuthenticatedUserContext } from '../../UserContext';
+import ConfigurationPage from '../../ConfigurationPage';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -179,13 +180,9 @@ export default function Component(props: Props): JSX.Element {
         <div>
           <Grid container spacing={4}>
             <Grid item xs={12} lg={8}>
-              Column 1
               <Container>
-
+                <ConfigurationPage />
               </Container>
-            </Grid>
-            <Grid item xs={12} lg={4}>
-              Column 2
             </Grid>
           </Grid>
         </div>

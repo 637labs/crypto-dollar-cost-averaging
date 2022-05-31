@@ -1,13 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import {
+    Redirect,
+} from 'react-router-dom';
+
 import { ApiKeyForm } from './PortfolioCredentials';
 import { PortfolioConfig } from './PortfolioConfig';
 import { getJson } from './HttpUtils';
 
-
-interface ConfigProps {
-    userDisplayName: string;
-    onAuthNeeded: () => void;
-}
 
 interface PortfolioTradeSpec {
     productId: string;
@@ -18,30 +17,24 @@ interface PortfolioDetails {
     tradeSpecs: PortfolioTradeSpec[];
 }
 
-interface State {
-    showApiKeyForm: boolean;
-    portfolioDetails: PortfolioDetails | null;
-}
+export default function ConfigurationPage(): JSX.Element {
+    const [portfolioDetails, setPortfolioDetails] = useState<PortfolioDetails | null>(null);
+    const [showApiKeyForm, setShowApiKeyForm] = useState<boolean>(false);
+    const [authNeeded, setAuthNeeded] = useState<boolean>(false);
 
-class ConfigurationPage extends React.Component<ConfigProps, State> {
-    constructor(props: ConfigProps) {
-        super(props);
-        this.state = { showApiKeyForm: false, portfolioDetails: null };
-    }
-
-    componentDidMount() {
+    useEffect(() => {
         getJson('/api/portfolio')
             .then(response => {
                 if (response.ok) {
                     response.json()
-                        .then(result => this.setState({
-                            portfolioDetails: { displayName: result.portfolioName, tradeSpecs: result.tradeSpecs },
-                            showApiKeyForm: false
+                        .then(result => setPortfolioDetails({
+                            displayName: result.portfolioName,
+                            tradeSpecs: result.tradeSpecs
                         }));
                 } else if (response.status === 401) {
-                    this.props.onAuthNeeded()
+                    setAuthNeeded(true);
                 } else if (response.status === 404) {
-                    this.setState({ showApiKeyForm: true })
+                    setShowApiKeyForm(true);
                 } else {
                     console.error(`Fetching configured portfolio returned unexpected status: ${response.status}`)
                 }
@@ -49,24 +42,26 @@ class ConfigurationPage extends React.Component<ConfigProps, State> {
             .catch(error => {
                 console.error(`Failed to fetch configured portfolio: ${error}`)
             })
-    }
+    }, []);
 
-    render() {
-        const { showApiKeyForm, portfolioDetails } = this.state;
+    if (authNeeded) {
         return (
-            <div>
-                <h2>{this.props.userDisplayName}</h2>
-                <h1>Account Configuration</h1>
-                {portfolioDetails != null && (<PortfolioConfig {...portfolioDetails} />)}
-                {showApiKeyForm && (
-                    <ApiKeyForm
-                        onSuccess={(portfolioName) => { this.setState({ showApiKeyForm: false, portfolioDetails: { displayName: portfolioName, tradeSpecs: [] } }) }}
-                        onAuthNeeded={this.props.onAuthNeeded}
-                    />
-                )}
-            </div>
-        )
+            <Redirect to='/' />
+        );
     }
-}
-
-export { ConfigurationPage };
+    return (
+        <div>
+            <h1>Account Configuration</h1>
+            {portfolioDetails != null && (<PortfolioConfig {...portfolioDetails} />)}
+            {showApiKeyForm && (
+                <ApiKeyForm
+                    onSuccess={(portfolioName) => {
+                        setPortfolioDetails({ displayName: portfolioName, tradeSpecs: [] });
+                        setShowApiKeyForm(false);
+                    }}
+                    onAuthNeeded={() => { setAuthNeeded(true) }}
+                />
+            )}
+        </div>
+    );
+};

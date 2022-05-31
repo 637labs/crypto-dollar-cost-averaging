@@ -5,33 +5,29 @@ interface TradeSpecProps {
     dailyTargetAmount: number;
 }
 
-class TradeSpec extends React.Component<TradeSpecProps> {
-    render() {
-        return (
-            <div>
-                <b>{this.props.productId}</b> | ${this.props.dailyTargetAmount} / <i>day</i>
-            </div>
-        )
-    }
-}
+function TradeSpec(props: TradeSpecProps): JSX.Element {
+    return (
+        <div>
+            <b>{props.productId}</b> | ${props.dailyTargetAmount} / <i>day</i>
+        </div>
+    );
+};
 
 interface PortfolioConfigProps {
     displayName: string;
     tradeSpecs: TradeSpecProps[];
 }
 
-class PortfolioConfig extends React.Component<PortfolioConfigProps> {
-    render() {
-        return (
-            <div>
-                <h3>{this.props.displayName}</h3>
-                {this.props.tradeSpecs.map((specProps) => {
-                    return <TradeSpec {...specProps} />
-                })}
-            </div>
-        )
-    }
-}
+function PortfolioConfig(props: PortfolioConfigProps): JSX.Element {
+    return (
+        <div>
+            <h3>{props.displayName}</h3>
+            {props.tradeSpecs.map((specProps) => {
+                return <TradeSpec key={specProps.productId} {...specProps} />
+            })}
+        </div>
+    );
+};
 
 export { PortfolioConfig };
 
