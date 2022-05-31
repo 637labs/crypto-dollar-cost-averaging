@@ -101,7 +101,7 @@ app.get('/auth/coinbase',
 );
 
 app.get('/auth/coinbase/callback',
-    passport.authenticate('coinbase', { successRedirect: '/', failureRedirect: '/' })
+    passport.authenticate('coinbase', { successRedirect: '/dashboard', failureRedirect: '/' })
 );
 
 app.get('/api/active-user',

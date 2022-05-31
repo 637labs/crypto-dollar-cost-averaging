@@ -2,7 +2,7 @@ version: "3"
 services:
     tradebot:
         image: crypto-tradebot:local
-        ports: 
+        ports:
             - "9000:9000"
         environment:
             PORT: "9000"
@@ -11,7 +11,7 @@ services:
             - ${localDevHome}/.config/gcloud:/home/tradebot/.config/gcloud:ro
     schedule-fanout:
         image: schedule-fanout:local
-        ports: 
+        ports:
             - "9001:9000"
         environment:
             PORT: "9000"
@@ -32,14 +32,14 @@ services:
             - ${localDevHome}/.config/gcloud:/home/tradebot/.config/gcloud:ro
     frontend:
         image: coinpilot-fe:local
-        depends_on: 
+        depends_on:
             - api
         ports:
             - "3001:3000"
         environment:
             GOOGLE_APPLICATION_CREDENTIALS: /home/tradebot/.config/gcloud/application_default_credentials.json
             HOSTNAME: "0.0.0.0"
-            AUTH_CALLBACK_URL_BASE: "http://0.0.0.0:3001"
+            AUTH_CALLBACK_URL_BASE: "http://0.0.0.0:3000"
             COINBASE_CLIENT_ID: ${cbClientId}
             COINBASE_CLIENT_SECRET: ${cbClientSecret}
             SESSION_SECRET: ${sessSecret}
@@ -48,4 +48,3 @@ services:
             API_URL: "http://api:9000"
         volumes:
             - ${localDevHome}/.config/gcloud:/home/tradebot/.config/gcloud:ro
-
