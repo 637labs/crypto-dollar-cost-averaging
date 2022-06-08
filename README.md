@@ -1,4 +1,5 @@
 # nckl -- cheap & easy crypto DCA
+https://nckl.app/
 
 Dollar-cost averaging into crypto assets currently has too many trade-offs:
 * Coinbase app charges high fees, up to **10%**
