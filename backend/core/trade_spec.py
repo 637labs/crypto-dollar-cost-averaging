@@ -4,6 +4,7 @@ from .firestore_helper import get_db, DocumentSnapshot
 from .profile import ProfileId, get_profile_field, get_profile_subcollection
 
 ProductId = AnyStr
+ScheduleId = AnyStr
 
 
 class TradeSpec:
@@ -77,6 +78,13 @@ def _trade_spec_from_document(trade_spec_doc: DocumentSnapshot) -> TradeSpec:
     return TradeSpec(trade_spec_doc.id, daily_frequency, daily_target_amount)
 
 
+def _find_optimal_schedule(
+    product_id: ProductId, daily_target_amount: float
+) -> ScheduleId:
+    # TODO(nico): implement for real, validating that amount meets trade minimum
+    return "1-a-day"
+
+
 def get_trade_spec(profile: ProfileId, product_id: ProductId) -> TradeSpec:
     target_deposits_collection = get_profile_subcollection(profile, "target_deposits")
     deposit_spec = target_deposits_collection.document(product_id).get()
@@ -93,3 +101,22 @@ def get_all_trade_specs(profile: ProfileId) -> List[TradeSpec]:
         _trade_spec_from_document(spec_doc)
         for spec_doc in target_deposits_collection.stream()
     ]
+
+
+def set_allocation(
+    profile: ProfileId, product_id: ProductId, daily_target_amount: float
+) -> None:
+    schedule_id = _find_optimal_schedule(product_id, daily_target_amount)
+    target_deposits_collection = get_profile_subcollection(profile, "target_deposits")
+    target_deposits_collection.document(product_id).set(
+        {"deposit_amount": daily_target_amount, "schedule": schedule_id}
+    )
+
+
+def remove_allocation(profile: ProfileId, product_id: ProductId) -> bool:
+    target_deposits_collection = get_profile_subcollection(profile, "target_deposits")
+    for configured_deposit in target_deposits_collection.stream():
+        if configured_deposit.id == product_id:
+            configured_deposit.reference.delete()
+            return True
+    return False

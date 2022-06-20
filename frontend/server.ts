@@ -130,7 +130,13 @@ app.post('/api/portfolio/create',
                 b64Secret: req.body.b64Secret,
                 passphrase: req.body.passphrase
             },
-            (portfolio: CoinbaseProPortfolio) => { res.status(200).json({ portfolioName: portfolio.displayName }); },
+            (portfolio: CoinbaseProPortfolio) => {
+                res.status(200).json({
+                    portfolioId: portfolio.id,
+                    portfolioName: portfolio.displayName,
+                    tradeSpecs: portfolio.tradeSpecs
+                });
+            },
             (err) => {
                 console.error(err);
                 res.sendStatus(400);
@@ -150,12 +156,65 @@ app.get('/api/portfolio',
             req.user,
             (portfolio: CoinbaseProPortfolio) => {
                 res.status(200).json({
+                    portfolioId: portfolio.id,
                     portfolioName: portfolio.displayName,
                     tradeSpecs: portfolio.tradeSpecs
                 });
             },
             () => {
                 res.sendStatus(404);
+            }
+        );
+    }
+);
+
+app.post('/api/portfolio/:portfolioId/allocation/:productId/set/v1',
+    ensureLoggedIn(),
+    bodyParser.json(),
+    (req, res) => {
+        if (!CoinbaseUser.isCoinbaseUser(req.user)) {
+            console.error("Request user is not of type CoinbaseUser");
+            return;
+        }
+        CoinbaseProPortfolio.setTradeSpec(
+            req.params.portfolioId,
+            req.user,
+            { productId: req.params.productId, dailyTargetAmount: req.body.dailyTargetAmount },
+            (portfolio: CoinbaseProPortfolio) => {
+                res.status(200).json({
+                    portfolioId: portfolio.id,
+                    portfolioName: portfolio.displayName,
+                    tradeSpecs: portfolio.tradeSpecs
+                });
+            },
+            () => {
+                res.sendStatus(400);
+            }
+        );
+    }
+);
+
+app.post('/api/portfolio/:portfolioId/allocation/:productId/remove/v1',
+    ensureLoggedIn(),
+    bodyParser.json(),
+    (req, res) => {
+        if (!CoinbaseUser.isCoinbaseUser(req.user)) {
+            console.error("Request user is not of type CoinbaseUser");
+            return;
+        }
+        CoinbaseProPortfolio.removeTradeSpec(
+            req.params.portfolioId,
+            req.user,
+            req.params.productId,
+            (portfolio: CoinbaseProPortfolio) => {
+                res.status(200).json({
+                    portfolioId: portfolio.id,
+                    portfolioName: portfolio.displayName,
+                    tradeSpecs: portfolio.tradeSpecs
+                });
+            },
+            () => {
+                res.sendStatus(400);
             }
         );
     }
