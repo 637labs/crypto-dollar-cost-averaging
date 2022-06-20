@@ -1,11 +1,11 @@
 import React from 'react';
 
-interface TradeSpecProps {
+interface AssetAllocationConfigProps {
     productId: string;
     dailyTargetAmount: number;
 }
 
-function TradeSpec(props: TradeSpecProps): JSX.Element {
+function AssetAllocationConfig(props: AssetAllocationConfigProps): JSX.Element {
     return (
         <div>
             <b>{props.productId}</b> | ${props.dailyTargetAmount} / <i>day</i>
@@ -14,16 +14,17 @@ function TradeSpec(props: TradeSpecProps): JSX.Element {
 };
 
 interface PortfolioConfigProps {
+    id: string;
     displayName: string;
-    tradeSpecs: TradeSpecProps[];
+    allocations: AssetAllocationConfigProps[];
 }
 
 function PortfolioConfig(props: PortfolioConfigProps): JSX.Element {
     return (
         <div>
             <h3>{props.displayName}</h3>
-            {props.tradeSpecs.map((specProps) => {
-                return <TradeSpec key={specProps.productId} {...specProps} />
+            {props.allocations.map((allocation) => {
+                return <AssetAllocationConfig key={allocation.productId} {...allocation} />
             })}
         </div>
     );

@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { Button, TextField, LinearProgress, Snackbar } from '@material-ui/core';
 import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
-import { postJson } from './HttpUtils';
+import { Portfolio, PortfolioAPI } from './api/PortfolioData';
+
 
 function Alert(props: AlertProps) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
 interface ApiKeyFormProps {
-    onSuccess: (portfolioName: string) => void;
+    onSuccess: (portfolio: Portfolio) => void;
     onAuthNeeded: () => void;
 }
 
@@ -33,29 +34,22 @@ function ApiKeyForm(props: ApiKeyFormProps): JSX.Element {
         setSubmissionSucceeded(false);
         setSubmissionFailed(false);
 
-        postJson('/api/portfolio/create', { apiKey, b64Secret: secret, passphrase })
-            .then(response => {
-                if (response.ok) {
-                    setLoading(false);
-                    setSubmissionSucceeded(true);
-                    response.json().then(result => props.onSuccess(result.portfolioName));
-                } else if (response.status === 401) {
-                    props.onAuthNeeded();
-                } else {
-                    console.error(`API key submission returned with non-OK status: ${response.status}`);
-                    setLoading(false);
-                    setSubmissionFailed(true);
-                    response.json().then(result => {
-                        setSubmissionFailureMessage(result.message || '');
-                        console.error(`API key submission failed with message: ${result.message || ''}`);
-                    });
-                }
-            })
-            .catch(error => {
+        PortfolioAPI.createPortfolio(
+            apiKey, secret, passphrase,
+            (portfolio) => {
+                setLoading(false);
+                setSubmissionSucceeded(true);
+                props.onSuccess(portfolio);
+            },
+            () => props.onAuthNeeded(),
+            (errorMessage) => {
                 setLoading(false);
                 setSubmissionFailed(true);
-                console.error(`Failed to submit API key: ${error}`);
-            });
+                if (errorMessage) {
+                    setSubmissionFailureMessage(errorMessage);
+                }
+            }
+        );
     };
 
     return (
