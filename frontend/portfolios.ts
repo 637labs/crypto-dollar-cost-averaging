@@ -35,7 +35,7 @@ class CoinbaseProPortfolio {
             },
             (response) => {
                 if (onSuccess) {
-                    onSuccess(new CoinbaseProPortfolio(response.data.id, response.data.displayName, []));
+                    onSuccess(new CoinbaseProPortfolio(response.data.id, response.data.displayName, response.data.tradeSpecs));
                 }
             },
             (reason) => {
@@ -55,6 +55,65 @@ class CoinbaseProPortfolio {
             {
                 method: 'post',
                 url: '/user/portfolio-profile/view/v1',
+                data: {
+                    userId: user.id,
+                },
+                responseType: 'json'
+            },
+            (response) => {
+                if (onSuccess) {
+                    onSuccess(new CoinbaseProPortfolio(response.data.id, response.data.displayName, response.data.tradeSpecs));
+                }
+            },
+            () => {
+                if (onFailure) {
+                    onFailure();
+                }
+            }
+        );
+    }
+
+    static setTradeSpec(
+        portfolioId: string,
+        user: CoinbaseUser,
+        tradeSpec: TradeSpec,
+        onSuccess: (portfolio: CoinbaseProPortfolio) => void,
+        onFailure: () => void
+    ) {
+        ApiService.authenticatedRequest(
+            {
+                method: 'post',
+                url: `/user/portfolio-profile/${portfolioId}/allocation/${tradeSpec.productId}/set/v1`,
+                data: {
+                    userId: user.id,
+                    dailyTargetAmount: tradeSpec.dailyTargetAmount,
+                },
+                responseType: 'json'
+            },
+            (response) => {
+                if (onSuccess) {
+                    onSuccess(new CoinbaseProPortfolio(response.data.id, response.data.displayName, response.data.tradeSpecs));
+                }
+            },
+            () => {
+                if (onFailure) {
+                    onFailure();
+                }
+            }
+        );
+    }
+
+    static removeTradeSpec(
+        portfolioId: string,
+        user: CoinbaseUser,
+        productId: string,
+        onSuccess: (portfolio: CoinbaseProPortfolio) => void,
+        onFailure: () => void
+    ) {
+        ApiService.authenticatedRequest(
+            {
+                method: 'post',
+                url: `/user/portfolio-profile/${portfolioId}/allocation/${productId}/remove/v1`,
                 data: {
                     userId: user.id,
                 },
