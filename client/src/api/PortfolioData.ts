@@ -49,8 +49,8 @@ class PortfolioAPI {
         onSuccess: (portfolio: Portfolio) => void,
         onAuthNeeded: () => void,
         onNotFound: () => void
-    ): void {
-        getJson('/api/portfolio')
+    ): Promise<void> {
+        return getJson('/api/portfolio')
             .then(response => {
                 if (response.ok) {
                     response.json()
@@ -78,8 +78,8 @@ class PortfolioAPI {
         onSuccess: (portfolio: Portfolio) => void,
         onAuthNeeded: () => void,
         onError: () => void
-    ): void {
-        postJson(`/api/portfolio/${portfolioId}/allocation/${allocation.productId}/set/v1`, { dailyTargetAmount: allocation.dailyTargetAmount })
+    ): Promise<void> {
+        return postJson(`/api/portfolio/${portfolioId}/allocation/${allocation.productId}/set/v1`, { dailyTargetAmount: allocation.dailyTargetAmount })
             .then(response => {
                 if (response.ok) {
                     response.json().then(result => onSuccess({
@@ -108,8 +108,8 @@ class PortfolioAPI {
         onSuccess: (portfolio: Portfolio) => void,
         onAuthNeeded: () => void,
         onError: () => void
-    ): void {
-        postJson(`/api/portfolio/${portfolioId}/allocation/${productId}/remove/v1`)
+    ): Promise<void> {
+        return postJson(`/api/portfolio/${portfolioId}/allocation/${productId}/remove/v1`)
             .then(response => {
                 if (response.ok) {
                     response.json().then(result => onSuccess({

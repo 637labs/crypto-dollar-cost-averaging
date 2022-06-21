@@ -13,11 +13,21 @@ export default function ConfigurationPage(): JSX.Element {
     const [showApiKeyForm, setShowApiKeyForm] = useState<boolean>(false);
     const [authNeeded, setAuthNeeded] = useState<boolean>(false);
 
-    useEffect(() => PortfolioAPI.fetchPortfolio(
-        portfolio => setPortfolioDetails(portfolio),
-        () => setAuthNeeded(true),
-        () => setShowApiKeyForm(true)
-    ), []);
+    useEffect(() => {
+        PortfolioAPI.fetchPortfolio(
+            portfolio => setPortfolioDetails(portfolio),
+            () => setAuthNeeded(true),
+            () => setShowApiKeyForm(true)
+        )
+    }, []);
+
+    const handlePortfolioUpdate = () => {
+        return PortfolioAPI.fetchPortfolio(
+            portfolio => setPortfolioDetails(portfolio),
+            () => setAuthNeeded(true),
+            () => setShowApiKeyForm(true)
+        );
+    }
 
     if (authNeeded) {
         return (
@@ -27,7 +37,7 @@ export default function ConfigurationPage(): JSX.Element {
     return (
         <div>
             <h1>Account Configuration</h1>
-            {portfolioDetails != null && (<PortfolioConfig {...portfolioDetails} />)}
+            {portfolioDetails != null && (<PortfolioConfig onPortfolioUpdate={handlePortfolioUpdate} {...portfolioDetails} />)}
             {showApiKeyForm && (
                 <ApiKeyForm
                     onSuccess={(portfolio) => {
