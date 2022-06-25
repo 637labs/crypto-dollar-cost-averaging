@@ -11,7 +11,7 @@ RUN groupadd --gid $USER_GID $USERNAME \
 # Install application dependencies
 COPY requirements.txt /tmp/pip-tmp/
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends git \
+    && apt-get install -y --no-install-recommends git g++ \
     && pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements.txt \
     && rm -rf /tmp/pip-tmp \
     && apt-get remove -y git \
