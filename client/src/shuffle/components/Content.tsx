@@ -19,6 +19,7 @@ export default function Content(): JSX.Element {
             <div className={classes.displayLinebreak}>
                 {subText}
             </div>
+            <img src={require('../../moneyGraph.jpeg')} />
         </div>
     );
 }
