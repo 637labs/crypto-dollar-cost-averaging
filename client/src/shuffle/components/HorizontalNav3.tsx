@@ -9,10 +9,6 @@ import { AuthenticatedUserContext } from '../../UserContext';
 import { CoinbaseLoginButton } from '../../Login';
 
 const useStyles = makeStyles((theme) => ({
-  brand: {
-    lineHeight: 1,
-    marginRight: theme.spacing(5)
-  },
   spacer: {
     flexGrow: 1,
   },
@@ -39,7 +35,7 @@ export default function Navigation(props: Props): JSX.Element {
   return (
     <AppBar position="static" color="inherit">
       <Toolbar>
-        <Link href="#" color="primary" underline="none" variant="h5" className={classes.brand}>
+        <Link href="#" color="primary" underline="none" variant="h5" >
           {brand}
         </Link>
         <div className={classes.spacer} />
