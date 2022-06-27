@@ -16,11 +16,6 @@ const useStyles = makeStyles((theme) => ({
   spacer: {
     flexGrow: 1,
   },
-  primaryAction: {
-    [theme.breakpoints.down('sm')]: {
-      display: 'none'
-    }
-  },
 }));
 
 interface NavigationContent {
