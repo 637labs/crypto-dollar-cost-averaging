@@ -1,6 +1,8 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
+import FeeSlider from "./FeeSlider";
+
 const useStyles = makeStyles((theme) => ({
     displayLinebreak: {
         textAlign: 'center',
@@ -20,6 +22,11 @@ export default function Content(): JSX.Element {
                 {subText}
             </div>
             <img src={require('../../moneyGraph.jpeg')} alt="Money graph" />
+            <div>
+                Q: How much will I save in fees compared to Coinbase.com? <br />
+                A: It depends how much you buy. Interact with the slider below to find out!
+            </div>
+            <FeeSlider />
         </div>
     );
 }
