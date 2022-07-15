@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
         margin: 40,
         flexDirection: "row",
         display: "flex",
-        gap: 10,
+        gap: 15,
         alignItems: "center"
     }
 }));

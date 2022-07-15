@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function Content(): JSX.Element {
+export default function SplashScreenContent(): JSX.Element {
     const classes = useStyles();
     const subText = '1. Sync with Coinbase \n 2. Set contributions \n 3. Buy crypto every day';
 

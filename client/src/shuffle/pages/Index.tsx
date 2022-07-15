@@ -2,7 +2,7 @@ import React from 'react';
 
 import HorizontalNav3 from '../components/HorizontalNav3';
 import Footer1 from '../components/Footer1';
-import Content from "../components/Content";
+import SplashScreenContent from "../components/SplashScreenContent";
 
 export default function Index(): JSX.Element {
   const navigationContent = {
@@ -12,7 +12,7 @@ export default function Index(): JSX.Element {
   return (
     <React.Fragment>
       <HorizontalNav3 content={navigationContent} />
-      <Content />
+      <SplashScreenContent />
       <Footer1 content={null} />
     </React.Fragment>
   );
