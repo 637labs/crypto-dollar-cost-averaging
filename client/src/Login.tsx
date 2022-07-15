@@ -8,7 +8,9 @@ interface CoinbaseLoginButtonProps {
 
 function CoinbaseLoginButton(props: CoinbaseLoginButtonProps): JSX.Element {
     return (
-        <Button variant="contained" color="secondary" className={props.classes.primaryAction} href="/auth/coinbase">Login with Coinbase</Button>
+        <div>
+            <Button variant="contained" color="secondary" className={props.classes.primaryAction} href="/auth/coinbase">Login with Coinbase</Button>
+        </div>
     );
 }
 
