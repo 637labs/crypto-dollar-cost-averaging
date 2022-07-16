@@ -37,7 +37,13 @@ export default function ConfigurationPage(): JSX.Element {
     return (
         <div>
             <h1>Account Configuration</h1>
-            {portfolioDetails != null && (<PortfolioConfig onPortfolioUpdate={handlePortfolioUpdate} {...portfolioDetails} />)}
+            {portfolioDetails != null && (
+                <PortfolioConfig
+                    onPortfolioUpdate={handlePortfolioUpdate}
+                    initialAllocations={portfolioDetails.allocations}
+                    {...portfolioDetails}
+                />
+            )}
             {showApiKeyForm && (
                 <ApiKeyForm
                     onSuccess={(portfolio) => {
