@@ -1,7 +1,7 @@
 import { getJson } from '../HttpUtils';
 
-const COINBASE_PRO_API_URL_BASE = 'https://api.exchange.coinbase.com';
-const ALL_PRODUCTS_URL = `${COINBASE_PRO_API_URL_BASE}/products`;
+const COINBASE_PRO_API_PROXY_URL_BASE = '/api/proxy/cbp';
+const ALL_PRODUCTS_URL = `${COINBASE_PRO_API_PROXY_URL_BASE}/products`;
 
 interface Product {
     id: string;
