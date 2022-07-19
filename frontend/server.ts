@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser');
 import helmet from 'helmet';
 import passport from 'passport';
 import { Strategy as CoinbaseStrategy } from 'passport-coinbase';
+const proxy = require('express-http-proxy');
 
 import { session } from './session-config';
 import { CoinbaseUser } from './users';
@@ -219,6 +220,10 @@ app.post('/api/portfolio/:portfolioId/allocation/:productId/remove/v1',
         );
     }
 );
+
+app.use('/api/proxy/cbp', proxy('https://api.exchange.coinbase.com', {
+    https: true
+}));
 
 
 app.listen(PORT);
