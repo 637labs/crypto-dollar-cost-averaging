@@ -15,8 +15,6 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Box from '@material-ui/core/Box';
-import Grid from '@material-ui/core/Grid';
-import Container from '@material-ui/core/Container';
 
 import MenuIcon from '@material-ui/icons/Menu';
 import LayersIcon from '@material-ui/icons/Layers';
@@ -24,7 +22,6 @@ import FilterHdrIcon from '@material-ui/icons/FilterHdr';
 import DirectionsBusIcon from '@material-ui/icons/DirectionsBus';
 
 import { AuthenticatedUserContext } from '../UserContext';
-import DashboardContent from './DashboardContent';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -72,16 +69,12 @@ const useStyles = makeStyles((theme) => ({
       display: 'none',
     }
   },
-  content: {
-    flexGrow: 1,
-    padding: theme.spacing(3),
-  },
 }
 ));
 
 interface Props { }
 
-export default function Component(props: Props): JSX.Element {
+export default function VerticalNav(props: Props): JSX.Element {
   const authedUser = useContext(AuthenticatedUserContext);
   const classes = useStyles();
 
@@ -128,18 +121,6 @@ export default function Component(props: Props): JSX.Element {
           {VerticalNavList()}
         </div>
       </Drawer>
-      <main className={classes.content}>
-        <Toolbar className={classes.toolbar} />
-        <div>
-          <Grid container spacing={4}>
-            <Grid item xs={12} lg={8}>
-              <Container>
-                <DashboardContent />
-              </Container>
-            </Grid>
-          </Grid>
-        </div>
-      </main>
     </div>
   );
 }
