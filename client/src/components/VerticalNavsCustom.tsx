@@ -9,7 +9,6 @@ import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
-// import Avatar from '@material-ui/core/Avatar';
 import Drawer from '@material-ui/core/Drawer';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -20,13 +19,12 @@ import Grid from '@material-ui/core/Grid';
 import Container from '@material-ui/core/Container';
 
 import MenuIcon from '@material-ui/icons/Menu';
-// import NotificationsIcon from '@material-ui/icons/Notifications';
 import LayersIcon from '@material-ui/icons/Layers';
 import FilterHdrIcon from '@material-ui/icons/FilterHdr';
 import DirectionsBusIcon from '@material-ui/icons/DirectionsBus';
 
-import { AuthenticatedUserContext } from '../../UserContext';
-import ConfigurationPage from '../../ConfigurationPage';
+import { AuthenticatedUserContext } from '../UserContext';
+import DashboardContent from './DashboardContent';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -136,7 +134,7 @@ export default function Component(props: Props): JSX.Element {
           <Grid container spacing={4}>
             <Grid item xs={12} lg={8}>
               <Container>
-                <ConfigurationPage />
+                <DashboardContent />
               </Container>
             </Grid>
           </Grid>

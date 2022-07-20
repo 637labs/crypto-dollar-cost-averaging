@@ -5,10 +5,10 @@ import {
 
 import { ApiKeyForm } from './PortfolioCredentials';
 import { PortfolioConfig } from './PortfolioConfig';
-import { Portfolio, PortfolioAPI } from './api/PortfolioData';
+import { Portfolio, PortfolioAPI } from '../api/PortfolioData';
 
 
-export default function ConfigurationPage(): JSX.Element {
+export default function DashboardContent(): JSX.Element {
     const [portfolioDetails, setPortfolioDetails] = useState<Portfolio | null>(null);
     const [showApiKeyForm, setShowApiKeyForm] = useState<boolean>(false);
     const [authNeeded, setAuthNeeded] = useState<boolean>(false);

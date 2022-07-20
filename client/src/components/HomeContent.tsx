@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function SplashScreenContent(): JSX.Element {
+export default function HomeContent(): JSX.Element {
     const classes = useStyles();
     const subText = '1. Sync with Coinbase \n 2. Set contributions \n 3. Buy crypto every day';
 
@@ -21,7 +21,7 @@ export default function SplashScreenContent(): JSX.Element {
             <div className={classes.displayLinebreak}>
                 {subText}
             </div>
-            <img src={require('../../moneyGraph.jpeg')} alt="Money graph" />
+            <img src={require('../assets/moneyGraph.jpeg')} alt="Money graph" />
             <div>
                 Q: How much will I save in fees compared to Coinbase.com? <br />
                 A: It depends how much you buy. Interact with the slider below to find out!

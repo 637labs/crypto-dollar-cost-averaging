@@ -5,9 +5,9 @@ import {
 } from 'react-router-dom';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { ThemeProvider } from '@material-ui/core/styles';
-import './index.css';
+import './css/index.css';
 import App from './App';
-import theme from './shuffle/theme/theme';
+import theme from './theme';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(

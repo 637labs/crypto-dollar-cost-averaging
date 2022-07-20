@@ -1,4 +1,3 @@
-import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
@@ -12,12 +11,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Footer(props) {
+export default function Footer(): JSX.Element {
   const classes = useStyles();
-
   const content = {
-    'copy': '© 2020 nckl All rights reserved.',
-    ...props.content
+    'copy': '© 2022 nckl All rights reserved.',
   };
 
   return (
