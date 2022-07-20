@@ -1,7 +1,8 @@
 import React, { useContext } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
-  Redirect
+  Redirect,
+  Link as RouterLink,
 } from 'react-router-dom';
 
 import AppBar from '@material-ui/core/AppBar';
@@ -15,10 +16,8 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Box from '@material-ui/core/Box';
-
 import MenuIcon from '@material-ui/icons/Menu';
 import LayersIcon from '@material-ui/icons/Layers';
-import FilterHdrIcon from '@material-ui/icons/FilterHdr';
 import DirectionsBusIcon from '@material-ui/icons/DirectionsBus';
 
 import { AuthenticatedUserContext } from '../UserContext';
@@ -72,9 +71,7 @@ const useStyles = makeStyles((theme) => ({
 }
 ));
 
-interface Props { }
-
-export default function VerticalNav(props: Props): JSX.Element {
+export default function VerticalNav(): JSX.Element {
   const authedUser = useContext(AuthenticatedUserContext);
   const classes = useStyles();
 
@@ -127,27 +124,32 @@ export default function VerticalNav(props: Props): JSX.Element {
 
 function VerticalNavList(): JSX.Element {
   const classes = useStyles();
+  const FancyLink = React.forwardRef(({ ...props }, ref) => {
+    return (
+      <a  {...props}>
+        {props.children}
+      </a>
+    )
+  })
 
   return (
     <List>
-      <ListItem button key="Dashboard">
-        <ListItemIcon className={classes.iconWrapper}>
-          <LayersIcon className={classes.icon} />
-        </ListItemIcon>
-        <ListItemText primary="Dashboard" />
-      </ListItem>
-      <ListItem button key="Edit contributions">
-        <ListItemIcon className={classes.iconWrapper}>
-          <FilterHdrIcon className={classes.icon} />
-        </ListItemIcon>
-        <ListItemText primary="Edit contributions" />
-      </ListItem>
-      <ListItem button key="Linked portfolio">
-        <ListItemIcon className={classes.iconWrapper}>
-          <DirectionsBusIcon className={classes.icon} />
-        </ListItemIcon>
-        <ListItemText primary="Linked portfolio" />
-      </ListItem>
+      <RouterLink to="/dashboard" component={FancyLink}>
+        <ListItem button key="Dashboard">
+          <ListItemIcon className={classes.iconWrapper}>
+            <LayersIcon className={classes.icon} />
+          </ListItemIcon>
+          <ListItemText primary="Dashboard" />
+        </ListItem>
+      </RouterLink>
+      <RouterLink to="/keyconfig" component={FancyLink}>
+        <ListItem button key="API Key Configuration">
+          <ListItemIcon className={classes.iconWrapper}>
+            <DirectionsBusIcon className={classes.icon} />
+          </ListItemIcon>
+          <ListItemText primary="API Key Configuration" />
+        </ListItem>
+      </RouterLink>
     </List>
   );
 }

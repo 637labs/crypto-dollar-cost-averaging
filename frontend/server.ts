@@ -96,6 +96,10 @@ app.get('/dashboard', function (req, res) {
     res.sendFile(path.join(CLIENT_BUILD_DIR, 'index.html'));
 });
 
+app.get('/keyconfig', function (req, res) {
+    res.sendFile(path.join(CLIENT_BUILD_DIR, 'index.html'));
+});
+
 app.get('/auth/coinbase',
     passport.authenticate('coinbase', { failureRedirect: '/' })
 );

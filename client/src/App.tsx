@@ -12,6 +12,7 @@ import { AuthenticatedUser, AuthenticatedUserContext } from './UserContext';
 
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
+import APIKeyConfiguration from './pages/APIKeyConfiguration';
 
 type ProtectedRouteProps = React.PropsWithChildren<RouteProps> & { onRedirect: (pathnameRedirectedFrom: string) => void };
 
@@ -92,13 +93,10 @@ function App(): JSX.Element {
           <ProtectedRoute onRedirect={setRedirectedFrom} exact path="/dashboard">
             <Dashboard />
           </ProtectedRoute>
+          <ProtectedRoute onRedirect={setRedirectedFrom} exact path="/keyconfig">
+            <APIKeyConfiguration />
+          </ProtectedRoute>
         </Switch>
-        {/* {showConfigPage && (
-            <ConfigurationPage
-              userDisplayName={userDisplayName || ''}
-              onAuthNeeded={() => { this.setState({ showLogin: true, showConfigPage: false, userDisplayName: null }) }}
-            />
-          )} */}
       </AuthenticatedUserContext.Provider>
     </div>
   );
