@@ -1,5 +1,6 @@
 from typing import AnyStr, Dict, List
 
+from .cbpro_client_helper import get_public_client, PublicClient
 from .firestore_helper import get_db, DocumentSnapshot
 from .profile import ProfileId, get_profile_field, get_profile_subcollection
 
@@ -19,7 +20,7 @@ class TradeSpec:
         return self.product
 
     def get_quote_amount(self) -> float:
-        return self.daily_target_amount / self.daily_frequency
+        return round(self.daily_target_amount / self.daily_frequency)
 
     def get_daily_limit(self) -> float:
         return self.daily_target_amount
@@ -79,10 +80,24 @@ def _trade_spec_from_document(trade_spec_doc: DocumentSnapshot) -> TradeSpec:
 
 
 def _find_optimal_schedule(
-    product_id: ProductId, daily_target_amount: float
+    product_id: ProductId, daily_target_amount: float, client: PublicClient
 ) -> ScheduleId:
-    # TODO(nico): implement for real, validating that amount meets trade minimum
-    return "1-a-day"
+    buy_minimum = _get_validated_product_buy_minimum(product_id, client)
+    if daily_target_amount < buy_minimum:
+        raise f"Target daily amount ${daily_target_amount} is below the minimum buy (${buy_minimum}) for '{product_id}'"
+
+    schedules_by_daily_frequency = sorted(
+        [
+            (int(schedule_doc.to_dict()["daily_frequency"]), schedule_doc.id)
+            for schedule_doc in get_db().collection("schedules").stream()
+        ],
+        reverse=True,
+    )
+    for daily_frequency, schedule_id in schedules_by_daily_frequency:
+        if daily_target_amount // daily_frequency >= buy_minimum:
+            return schedule_id
+
+    assert f"Unable to find valid schedule for product '{product_id}' with target daily amount of ${daily_target_amount} and minimum market buy of ${buy_minimum}"
 
 
 def get_trade_spec(profile: ProfileId, product_id: ProductId) -> TradeSpec:
@@ -103,10 +118,40 @@ def get_all_trade_specs(profile: ProfileId) -> List[TradeSpec]:
     ]
 
 
+def _is_supported_product(product_details: dict) -> bool:
+    return not (
+        product_details["trading_disabled"]
+        or product_details["auction_mode"]
+        or product_details["post_only"]
+        or product_details["limit_only"]
+        or product_details["cancel_only"]
+        or product_details["quote_currency"] != "USD"
+    )
+
+
+def _get_validated_product_buy_minimum(
+    product_id: ProductId, client: PublicClient
+) -> float:
+    all_products = client.get_products()
+    matching_products = list(filter(lambda p: p.get("id") == product_id, all_products))
+    if not matching_products:
+        raise Exception(f"Could not find product '{product_id}'")
+    if len(matching_products) > 1:
+        raise AssertionError(f"Found multiple products with ID '{product_id}'")
+
+    [product_details] = matching_products
+    if not _is_supported_product(product_details):
+        raise f"Unsupported product '{product_id}'"
+
+    return float(product_details["min_market_funds"])
+
+
 def set_allocation(
     profile: ProfileId, product_id: ProductId, daily_target_amount: float
 ) -> None:
-    schedule_id = _find_optimal_schedule(product_id, daily_target_amount)
+    schedule_id = _find_optimal_schedule(
+        product_id, daily_target_amount, get_public_client(profile.namespace)
+    )
     target_deposits_collection = get_profile_subcollection(profile, "target_deposits")
     target_deposits_collection.document(product_id).set(
         {"deposit_amount": daily_target_amount, "schedule": schedule_id}

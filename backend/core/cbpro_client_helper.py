@@ -1,6 +1,6 @@
 import os
 
-from coinbasepro import AuthenticatedClient
+from coinbasepro import AuthenticatedClient, PublicClient
 
 from .profile import CBPRO_BETA_NS, LOCAL_NS, SANDBOX_NS, ProfileId
 from backend.core.secrets.profile_secrets import (
@@ -13,6 +13,8 @@ PROFILE_NAMESPACE_TO_API_URL = {
     SANDBOX_NS: "https://api-public.sandbox.pro.coinbase.com",
     CBPRO_BETA_NS: "https://api.pro.coinbase.com",
 }
+
+_CLIENT_BY_NAMESPACE = {}
 
 
 class CbProAuthenticatedClient(AuthenticatedClient):
@@ -64,3 +66,11 @@ def get_client(profile: ProfileId) -> CbProAuthenticatedClient:
         return _build_client_from_env()
     else:
         return _build_client_for_profile(profile)
+
+
+def get_public_client(namespace: str) -> PublicClient:
+    if namespace not in _CLIENT_BY_NAMESPACE:
+        _CLIENT_BY_NAMESPACE[namespace] = PublicClient(
+            api_url=PROFILE_NAMESPACE_TO_API_URL[namespace]
+        )
+    return _CLIENT_BY_NAMESPACE[namespace]
