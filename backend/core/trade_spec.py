@@ -94,7 +94,8 @@ def _find_optimal_schedule(
         reverse=True,
     )
     for daily_frequency, schedule_id in schedules_by_daily_frequency:
-        if daily_target_amount // daily_frequency >= buy_minimum:
+        # Ensure that the per-order amount meets the exchange's minimum, but also ensure it's at least $2 since some exchanges charge a minimum fee of $0.01
+        if daily_target_amount // daily_frequency >= max(buy_minimum + 1, 2):
             return schedule_id
 
     assert f"Unable to find valid schedule for product '{product_id}' with target daily amount of ${daily_target_amount} and minimum market buy of ${buy_minimum}"
