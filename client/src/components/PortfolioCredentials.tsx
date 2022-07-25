@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, TextField, LinearProgress, Snackbar } from '@material-ui/core';
 import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
-import { Portfolio, PortfolioAPI } from './api/PortfolioData';
+import { Portfolio, PortfolioAPI } from '../api/PortfolioData';
 
 
 function Alert(props: AlertProps) {

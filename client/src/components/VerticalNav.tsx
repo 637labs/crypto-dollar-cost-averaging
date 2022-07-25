@@ -1,7 +1,8 @@
 import React, { useContext } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
-  Redirect
+  Redirect,
+  Link as RouterLink,
 } from 'react-router-dom';
 
 import AppBar from '@material-ui/core/AppBar';
@@ -9,24 +10,17 @@ import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
-// import Avatar from '@material-ui/core/Avatar';
 import Drawer from '@material-ui/core/Drawer';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Box from '@material-ui/core/Box';
-import Grid from '@material-ui/core/Grid';
-import Container from '@material-ui/core/Container';
-
 import MenuIcon from '@material-ui/icons/Menu';
-// import NotificationsIcon from '@material-ui/icons/Notifications';
 import LayersIcon from '@material-ui/icons/Layers';
-import FilterHdrIcon from '@material-ui/icons/FilterHdr';
 import DirectionsBusIcon from '@material-ui/icons/DirectionsBus';
 
-import { AuthenticatedUserContext } from '../../UserContext';
-import ConfigurationPage from '../../ConfigurationPage';
+import { AuthenticatedUserContext } from '../UserContext';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -74,16 +68,10 @@ const useStyles = makeStyles((theme) => ({
       display: 'none',
     }
   },
-  content: {
-    flexGrow: 1,
-    padding: theme.spacing(3),
-  },
 }
 ));
 
-interface Props { }
-
-export default function Component(props: Props): JSX.Element {
+export default function VerticalNav(): JSX.Element {
   const authedUser = useContext(AuthenticatedUserContext);
   const classes = useStyles();
 
@@ -112,38 +100,12 @@ export default function Component(props: Props): JSX.Element {
           <Typography variant="body1" color="inherit" className={classes.profile} paragraph={false}>
             Logged in as {authedUser.displayName}
           </Typography>
-          {/* // TODO: support for Coinbase avatars
-          <IconButton color="inherit" className={classes.profile}>
-            <Avatar alt="" src="https://images.unsplash.com/photo-1492633423870-43d1cd2775eb?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" />
-          </IconButton> */}
-          {/* <IconButton color="inherit" className={classes.profile}>
-            <NotificationsIcon />
-          </IconButton> */}
         </Toolbar>
       </AppBar>
       <Drawer className={classes.drawerRoot} variant="permanent">
-        <Toolbar className={classes.toolbar} />
+        <div className={classes.toolbar} />
         <div className={classes.drawerContainer}>
-          <List>
-            <ListItem button key="Dashboard">
-              <ListItemIcon className={classes.iconWrapper}>
-                <LayersIcon className={classes.icon} />
-              </ListItemIcon>
-              <ListItemText primary="Dashboard" />
-            </ListItem>
-            <ListItem button key="Edit contributions">
-              <ListItemIcon className={classes.iconWrapper}>
-                <FilterHdrIcon className={classes.icon} />
-              </ListItemIcon>
-              <ListItemText primary="Edit contributions" />
-            </ListItem>
-            <ListItem button key="Linked portfolio">
-              <ListItemIcon className={classes.iconWrapper}>
-                <DirectionsBusIcon className={classes.icon} />
-              </ListItemIcon>
-              <ListItemText primary="Linked portfolio" />
-            </ListItem>
-          </List>
+          {VerticalNavList()}
         </div>
       </Drawer>
       <Drawer anchor="left" open={state.open} onClose={toggleDrawer(false)}>
@@ -153,40 +115,41 @@ export default function Component(props: Props): JSX.Element {
               <img src="nereus-assets/img/nereus-light.png" alt="" width="110" />
             </Link>
           </Box>
-          <List>
-            <ListItem button key="Dashboard">
-              <ListItemIcon className={classes.iconWrapper}>
-                <LayersIcon className={classes.icon} />
-              </ListItemIcon>
-              <ListItemText primary="Dashboard" />
-            </ListItem>
-            <ListItem button key="Edit contributions">
-              <ListItemIcon className={classes.iconWrapper}>
-                <FilterHdrIcon className={classes.icon} />
-              </ListItemIcon>
-              <ListItemText primary="Edit contributions" />
-            </ListItem>
-            <ListItem button key="Linked portfolio">
-              <ListItemIcon className={classes.iconWrapper}>
-                <DirectionsBusIcon className={classes.icon} />
-              </ListItemIcon>
-              <ListItemText primary="Linked portfolio" />
-            </ListItem>
-          </List>
+          {VerticalNavList()}
         </div>
       </Drawer>
-      <main className={classes.content}>
-        <Toolbar className={classes.toolbar} />
-        <div>
-          <Grid container spacing={4}>
-            <Grid item xs={12} lg={8}>
-              <Container>
-                <ConfigurationPage />
-              </Container>
-            </Grid>
-          </Grid>
-        </div>
-      </main>
     </div>
+  );
+}
+
+function VerticalNavList(): JSX.Element {
+  const classes = useStyles();
+  const FancyLink = React.forwardRef(({ ...props }, ref) => {
+    return (
+      <a  {...props}>
+        {props.children}
+      </a>
+    )
+  })
+
+  return (
+    <List>
+      <RouterLink to="/dashboard" component={FancyLink}>
+        <ListItem button key="Dashboard">
+          <ListItemIcon className={classes.iconWrapper}>
+            <LayersIcon className={classes.icon} />
+          </ListItemIcon>
+          <ListItemText primary="Dashboard" />
+        </ListItem>
+      </RouterLink>
+      <RouterLink to="/keyconfig" component={FancyLink}>
+        <ListItem button key="API Key Configuration">
+          <ListItemIcon className={classes.iconWrapper}>
+            <DirectionsBusIcon className={classes.icon} />
+          </ListItemIcon>
+          <ListItemText primary="API Key Configuration" />
+        </ListItem>
+      </RouterLink>
+    </List>
   );
 }

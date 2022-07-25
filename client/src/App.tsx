@@ -6,12 +6,13 @@ import {
   Redirect,
   useHistory
 } from 'react-router-dom';
-import './App.css';
+import './css/App.css';
 import { getJson } from './HttpUtils';
 import { AuthenticatedUser, AuthenticatedUserContext } from './UserContext';
 
-import IndexPage from './shuffle/pages/Index';
-import DashboardPage from './shuffle/pages/Dashboard';
+import Home from './pages/Home';
+import Dashboard from './pages/Dashboard';
+import APIKeyConfiguration from './pages/APIKeyConfiguration';
 
 type ProtectedRouteProps = React.PropsWithChildren<RouteProps> & { onRedirect: (pathnameRedirectedFrom: string) => void };
 
@@ -87,18 +88,15 @@ function App(): JSX.Element {
       <AuthenticatedUserContext.Provider value={authedUser}>
         <Switch>
           <Route exact path="/">
-            <IndexPage />
+            <Home />
           </Route>
           <ProtectedRoute onRedirect={setRedirectedFrom} exact path="/dashboard">
-            <DashboardPage />
+            <Dashboard />
+          </ProtectedRoute>
+          <ProtectedRoute onRedirect={setRedirectedFrom} exact path="/keyconfig">
+            <APIKeyConfiguration />
           </ProtectedRoute>
         </Switch>
-        {/* {showConfigPage && (
-            <ConfigurationPage
-              userDisplayName={userDisplayName || ''}
-              onAuthNeeded={() => { this.setState({ showLogin: true, showConfigPage: false, userDisplayName: null }) }}
-            />
-          )} */}
       </AuthenticatedUserContext.Provider>
     </div>
   );

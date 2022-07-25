@@ -5,8 +5,8 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Link from '@material-ui/core/Link';
 
-import { AuthenticatedUserContext } from '../../UserContext';
-import { CoinbaseLoginButton } from '../../Login';
+import { AuthenticatedUserContext } from '../UserContext';
+import { CoinbaseLoginButton } from './CoinbaseLoginButton';
 
 const useStyles = makeStyles((theme) => ({
   spacer: {
@@ -22,7 +22,7 @@ interface Props {
   content: NavigationContent;
 }
 
-export default function Navigation(props: Props): JSX.Element {
+export default function HorizontalNav(props: Props): JSX.Element {
   const classes = useStyles();
   let brand;
 

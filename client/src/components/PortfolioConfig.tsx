@@ -5,8 +5,8 @@ import EditIcon from '@material-ui/icons/Edit';
 import SaveIcon from '@material-ui/icons/Save';
 import AddIcon from '@material-ui/icons/Add';
 
-import { AssetAllocation, PortfolioAPI } from './api/PortfolioData';
-import { Product, CoinbaseProAPI } from './api/CoinbaseProData';
+import { AssetAllocation, PortfolioAPI } from '../api/PortfolioData';
+import { Product, CoinbaseProAPI } from '../api/CoinbaseProData';
 
 interface AssetAllocationConfigProps {
     productId: string;
