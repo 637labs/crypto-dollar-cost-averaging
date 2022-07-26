@@ -20,7 +20,8 @@ class TradeSpec:
         return self.product
 
     def get_quote_amount(self) -> float:
-        return round(self.daily_target_amount / self.daily_frequency)
+        # Round to 1 decimal because some exchanges will barf of exceedingly precise order amounts
+        return round(self.daily_target_amount / self.daily_frequency, ndigits=1)
 
     def get_daily_limit(self) -> float:
         return self.daily_target_amount
