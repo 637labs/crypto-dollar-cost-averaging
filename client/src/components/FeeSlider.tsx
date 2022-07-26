@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { Container, Input, Grid, Box, Slider } from '@material-ui/core';
+import { Container, Input, InputAdornment, Grid, Box, Slider } from '@material-ui/core';
 
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
@@ -74,6 +74,7 @@ export default function FeeSlider(): JSX.Element {
                         type: 'number',
                         'aria-labelledby': 'input-slider',
                     }}
+                    startAdornment={<InputAdornment position="start">$</InputAdornment>}
                 />
                 <Box sx={{ width: 300 }}>
                     <Slider
@@ -100,6 +101,8 @@ export default function FeeSlider(): JSX.Element {
                 <Grid item xs={4}><div>${coinbaseComFees}</div></Grid>
                 <Grid item xs={8}><div>nckl total fees:</div></Grid>
                 <Grid item xs={4}><div>${coinbaseProFees}</div></Grid>
+                <Grid item xs={8}><div><b>Your savings:</b></div></Grid>
+                <Grid item xs={4}><div><b>${coinbaseComFees - coinbaseProFees}</b></div></Grid>
             </Grid>
 
         </Container >
