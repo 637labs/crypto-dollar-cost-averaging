@@ -75,9 +75,9 @@ class PortfolioAPI {
     static setAssetAllocation(
         portfolioId: string,
         allocation: AssetAllocation,
-        onSuccess: (portfolio: Portfolio) => void,
-        onAuthNeeded: () => void,
-        onError: () => void
+        onSuccess: ((portfolio: Portfolio) => void) = () => { },
+        onAuthNeeded: () => void = () => { },
+        onError: () => void = () => { }
     ): Promise<void> {
         return postJson(`/api/portfolio/${portfolioId}/allocation/${allocation.productId}/set/v1`, { dailyTargetAmount: allocation.dailyTargetAmount })
             .then(response => {
@@ -105,9 +105,9 @@ class PortfolioAPI {
     static removeAssetAllocation(
         portfolioId: string,
         productId: string,
-        onSuccess: (portfolio: Portfolio) => void,
-        onAuthNeeded: () => void,
-        onError: () => void
+        onSuccess: (portfolio: Portfolio) => void = () => { },
+        onAuthNeeded: () => void = () => { },
+        onError: () => void = () => { }
     ): Promise<void> {
         return postJson(`/api/portfolio/${portfolioId}/allocation/${productId}/remove/v1`)
             .then(response => {

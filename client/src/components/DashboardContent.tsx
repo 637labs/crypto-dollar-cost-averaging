@@ -4,7 +4,7 @@ import {
 } from 'react-router-dom';
 
 import { ApiKeyForm } from './PortfolioCredentials';
-import { PortfolioConfig } from './PortfolioConfig';
+import PortfolioConfig from './PortfolioConfig';
 import { Portfolio, PortfolioAPI } from '../api/PortfolioData';
 
 
@@ -40,6 +40,8 @@ export default function DashboardContent(): JSX.Element {
             {portfolioDetails != null && (
                 <PortfolioConfig
                     onPortfolioUpdate={handlePortfolioUpdate}
+                    setAssetAllocation={PortfolioAPI.setAssetAllocation}
+                    removeAssetAllocation={PortfolioAPI.removeAssetAllocation}
                     initialAllocations={portfolioDetails.allocations}
                     {...portfolioDetails}
                 />

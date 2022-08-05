@@ -1,24 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Button, CircularProgress } from '@material-ui/core';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Button, CircularProgress, Grid } from '@material-ui/core';
 import { Autocomplete } from '@material-ui/lab';
 import EditIcon from '@material-ui/icons/Edit';
 import SaveIcon from '@material-ui/icons/Save';
 import AddIcon from '@material-ui/icons/Add';
 
-import { AssetAllocation, PortfolioAPI } from '../api/PortfolioData';
+import { AssetAllocation } from '../api/PortfolioData';
 import { Product, CoinbaseProAPI } from '../api/CoinbaseProData';
 
 interface AssetAllocationConfigProps {
     productId: string;
     displayName: string;
     dailyTargetAmount: number;
-}
-
-interface PortfolioConfigProps {
-    id: string;
-    displayName: string;
-    initialAllocations: AssetAllocation[];
-    onPortfolioUpdate: () => Promise<void>;
 }
 
 function AssetAllocationRow(props: AssetAllocationConfigProps): JSX.Element {
@@ -115,10 +108,21 @@ function NewAssetAllocationRow(props: NewAssetAllocationRowProps): JSX.Element {
 
 type ProductId = Product["id"];
 
-function PortfolioConfig(props: PortfolioConfigProps): JSX.Element {
-    const [allProducts, setAllProducts] = useState<Product[] | null>(null);
-    const [productsById, setProductsById] = useState<{ [key: ProductId]: Product } | null>(null);
+interface PortfolioConfigProps {
+    id: string;
+    displayName: string;
+    initialAllocations: AssetAllocation[];
+    onPortfolioUpdate: () => Promise<void>;
+    setAssetAllocation: (portfolioId: string, allocation: AssetAllocation) => Promise<void>;
+    removeAssetAllocation: (portfolioId: string, productId: string) => Promise<void>;
+}
 
+interface EnhancedPortfolioConfigProps extends PortfolioConfigProps {
+    allProducts: Product[];
+    productsById: { [key: ProductId]: Product };
+}
+
+function PortfolioConfig(props: EnhancedPortfolioConfigProps): JSX.Element {
     const [editing, setEditing] = useState<boolean>(false);
     const [saving, setSaving] = useState<boolean>(false);
 
@@ -126,16 +130,6 @@ function PortfolioConfig(props: PortfolioConfigProps): JSX.Element {
         Object.fromEntries<number>(props.initialAllocations.map(allocation => [allocation.productId, allocation.dailyTargetAmount]))
     );
     const [addedAllocations, setAddedAllocations] = useState<ProductId[]>([]);
-
-    useEffect(() => {
-        CoinbaseProAPI.getAvailableProducts()
-            .then(products => {
-                setAllProducts(products);
-                setProductsById(
-                    Object.fromEntries<Product>(products.map(product => [product.id, product]))
-                )
-            })
-    }, []);
 
     const handleUpdateAllocation = (productId: string) => {
         return (updatedDailyAmount: number) => {
@@ -151,21 +145,15 @@ function PortfolioConfig(props: PortfolioConfigProps): JSX.Element {
             if (originalAllocation.dailyTargetAmount !== allocationAmounts[productId]) {
                 if (allocationAmounts[productId] > 0) {
                     apiPromises.push(
-                        PortfolioAPI.setAssetAllocation(
+                        props.setAssetAllocation(
                             props.id,
-                            { productId, dailyTargetAmount: allocationAmounts[productId] },
-                            () => { },
-                            () => { },
-                            () => { }
+                            { productId, dailyTargetAmount: allocationAmounts[productId] }
                         ));
                 } else {
                     apiPromises.push(
-                        PortfolioAPI.removeAssetAllocation(
+                        props.removeAssetAllocation(
                             props.id,
-                            productId,
-                            () => { },
-                            () => { },
-                            () => { }
+                            productId
                         ));
                 }
             }
@@ -175,12 +163,9 @@ function PortfolioConfig(props: PortfolioConfigProps): JSX.Element {
             const allocationAmount = allocationAmounts[productId];
             if (allocationAmount > 0) {
                 apiPromises.push(
-                    PortfolioAPI.setAssetAllocation(
+                    props.setAssetAllocation(
                         props.id,
-                        { productId, dailyTargetAmount: allocationAmount },
-                        () => { },
-                        () => { },
-                        () => { }
+                        { productId, dailyTargetAmount: allocationAmount }
                     ));
             }
         }
@@ -194,17 +179,13 @@ function PortfolioConfig(props: PortfolioConfigProps): JSX.Element {
         })
     }
 
-    if (allProducts === null || productsById === null) {
-        return (
-            <div>
-                <CircularProgress />
-            </div>
-        );
-    }
-
     const currentAllocatedProductIds = props.initialAllocations.map(allocation => allocation.productId).concat(addedAllocations);
     return (
         <div>
+            <Grid container spacing={2}>
+                <Grid item xs={2}><div>Total daily contributions:</div></Grid>
+                <Grid item xs={1}><div>${currentAllocatedProductIds.map(productId => allocationAmounts[productId]).reduce<number>((sum, x) => sum + x, 0)}</div></Grid>
+            </Grid>
             <TableContainer component={Paper}>
                 {/* <Table sx={{ minWidth: 650 }}> */}
                 <Table>
@@ -220,20 +201,20 @@ function PortfolioConfig(props: PortfolioConfigProps): JSX.Element {
                                 <EditableAssetAllocationRow
                                     key={productId}
                                     productId={productId}
-                                    displayName={productsById[productId].displayName}
+                                    displayName={props.productsById[productId].displayName}
                                     dailyTargetAmount={allocationAmounts[productId]}
                                     onDailyAmountUpdate={handleUpdateAllocation(productId)}
                                 /> :
                                 <AssetAllocationRow
                                     key={productId}
                                     productId={productId}
-                                    displayName={productsById[productId].displayName}
+                                    displayName={props.productsById[productId].displayName}
                                     dailyTargetAmount={allocationAmounts[productId]}
                                 />
                         ))}
                         {editing && (
                             <NewAssetAllocationRow
-                                options={allProducts.filter(product => !currentAllocatedProductIds.includes(product.id))}
+                                options={props.allProducts.filter(product => !currentAllocatedProductIds.includes(product.id))}
                                 onSubmitAssetAddition={(product) => {
                                     setAddedAllocations(prevAddedAllocations => [...prevAddedAllocations, product.id]);
                                     setAllocationAmounts({ ...allocationAmounts, [product.id]: 0 });
@@ -259,6 +240,31 @@ function PortfolioConfig(props: PortfolioConfigProps): JSX.Element {
         </div>
     );
 };
+
+export default function QueryingPortfolioConfig(props: PortfolioConfigProps): JSX.Element {
+    const [allProducts, setAllProducts] = useState<Product[] | null>(null);
+    const [productsById, setProductsById] = useState<{ [key: ProductId]: Product } | null>(null);
+
+    useEffect(() => {
+        CoinbaseProAPI.getAvailableProducts()
+            .then(products => {
+                setAllProducts(products);
+                setProductsById(
+                    Object.fromEntries<Product>(products.map(product => [product.id, product]))
+                )
+            })
+    }, []);
+
+    if (allProducts === null || productsById === null) {
+        return (
+            <div>
+                <CircularProgress />
+            </div>
+        );
+    } else {
+        return <PortfolioConfig {...props} allProducts={allProducts} productsById={productsById} />
+    }
+}
 
 export { PortfolioConfig };
 
