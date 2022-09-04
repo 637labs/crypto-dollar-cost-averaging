@@ -139,7 +139,8 @@ app.post('/api/portfolio/create',
                 res.status(200).json({
                     portfolioId: portfolio.id,
                     portfolioName: portfolio.displayName,
-                    tradeSpecs: portfolio.tradeSpecs
+                    tradeSpecs: portfolio.tradeSpecs,
+                    usdBalance: portfolio.usdBalance
                 });
             },
             (err) => {
@@ -163,7 +164,8 @@ app.get('/api/portfolio',
                 res.status(200).json({
                     portfolioId: portfolio.id,
                     portfolioName: portfolio.displayName,
-                    tradeSpecs: portfolio.tradeSpecs
+                    tradeSpecs: portfolio.tradeSpecs,
+                    usdBalance: portfolio.usdBalance
                 });
             },
             () => {
@@ -189,7 +191,8 @@ app.post('/api/portfolio/:portfolioId/allocation/:productId/set/v1',
                 res.status(200).json({
                     portfolioId: portfolio.id,
                     portfolioName: portfolio.displayName,
-                    tradeSpecs: portfolio.tradeSpecs
+                    tradeSpecs: portfolio.tradeSpecs,
+                    usdBalance: portfolio.usdBalance
                 });
             },
             () => {
@@ -215,7 +218,8 @@ app.post('/api/portfolio/:portfolioId/allocation/:productId/remove/v1',
                 res.status(200).json({
                     portfolioId: portfolio.id,
                     portfolioName: portfolio.displayName,
-                    tradeSpecs: portfolio.tradeSpecs
+                    tradeSpecs: portfolio.tradeSpecs,
+                    usdBalance: portfolio.usdBalance
                 });
             },
             () => {
