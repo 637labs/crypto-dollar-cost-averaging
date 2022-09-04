@@ -111,6 +111,7 @@ type ProductId = Product["id"];
 interface PortfolioConfigProps {
     id: string;
     displayName: string;
+    usdBalance: number;
     initialAllocations: AssetAllocation[];
     onPortfolioUpdate: () => Promise<void>;
     setAssetAllocation: (portfolioId: string, allocation: AssetAllocation) => Promise<void>;
@@ -182,6 +183,10 @@ function PortfolioConfig(props: EnhancedPortfolioConfigProps): JSX.Element {
     const currentAllocatedProductIds = props.initialAllocations.map(allocation => allocation.productId).concat(addedAllocations);
     return (
         <div>
+            <Grid container spacing={2}>
+                <Grid item xs={2}><div>USD Balance:</div></Grid>
+                <Grid item xs={1}><div>${props.usdBalance}</div></Grid>
+            </Grid>
             <Grid container spacing={2}>
                 <Grid item xs={2}><div>Total daily contributions:</div></Grid>
                 <Grid item xs={1}><div>${currentAllocatedProductIds.map(productId => allocationAmounts[productId]).reduce<number>((sum, x) => sum + x, 0)}</div></Grid>

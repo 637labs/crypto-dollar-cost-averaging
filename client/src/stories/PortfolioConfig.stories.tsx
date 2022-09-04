@@ -30,6 +30,7 @@ export const Primary = Template.bind({});
 Primary.args = {
     id: "portfolio-abc123",
     displayName: "My DCA Portfolio",
+    usdBalance: 1000,
     initialAllocations: [{ productId: "ETH-USD", dailyTargetAmount: 15 }, { productId: "BTC-USD", dailyTargetAmount: 10 }],
     allProducts: ALL_PRODUCTS,
     productsById: PRODUCTS_BY_ID,

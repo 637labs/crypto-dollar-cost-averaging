@@ -8,6 +8,7 @@ interface AssetAllocation {
 interface Portfolio {
     id: string;
     displayName: string;
+    usdBalance: number;
     allocations: AssetAllocation[];
 }
 
@@ -27,6 +28,7 @@ class PortfolioAPI {
                     response.json().then(result => onSuccess({
                         id: result.portfolioId,
                         displayName: result.portfolioName,
+                        usdBalance: result.usdBalance,
                         allocations: result.tradeSpecs
                     }));
                 } else if (response.status === 401) {
@@ -57,6 +59,7 @@ class PortfolioAPI {
                         .then(result => onSuccess({
                             id: result.portfolioId,
                             displayName: result.portfolioName,
+                            usdBalance: result.usdBalance,
                             allocations: result.tradeSpecs
                         }));
                 } else if (response.status === 401) {
@@ -85,6 +88,7 @@ class PortfolioAPI {
                     response.json().then(result => onSuccess({
                         id: result.portfolioId,
                         displayName: result.portfolioName,
+                        usdBalance: result.usdBalance,
                         allocations: result.tradeSpecs
                     }));
                 } else if (response.status === 401) {
@@ -115,6 +119,7 @@ class PortfolioAPI {
                     response.json().then(result => onSuccess({
                         id: result.portfolioId,
                         displayName: result.portfolioName,
+                        usdBalance: result.usdBalance,
                         allocations: result.tradeSpecs
                     }));
                 } else if (response.status === 401) {
