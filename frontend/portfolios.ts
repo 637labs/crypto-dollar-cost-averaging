@@ -15,7 +15,7 @@ interface TradeSpec {
 }
 
 class CoinbaseProPortfolio {
-    constructor(public id: string, public displayName: string, public tradeSpecs: TradeSpec[]) { }
+    constructor(public id: string, public displayName: string, public tradeSpecs: TradeSpec[], public usdBalance: number) { }
 
     static create(
         user: CoinbaseUser,
@@ -35,7 +35,7 @@ class CoinbaseProPortfolio {
             },
             (response) => {
                 if (onSuccess) {
-                    onSuccess(new CoinbaseProPortfolio(response.data.id, response.data.displayName, response.data.tradeSpecs));
+                    onSuccess(new CoinbaseProPortfolio(response.data.id, response.data.displayName, response.data.tradeSpecs, response.data.usdBalance));
                 }
             },
             (reason) => {
@@ -62,7 +62,7 @@ class CoinbaseProPortfolio {
             },
             (response) => {
                 if (onSuccess) {
-                    onSuccess(new CoinbaseProPortfolio(response.data.id, response.data.displayName, response.data.tradeSpecs));
+                    onSuccess(new CoinbaseProPortfolio(response.data.id, response.data.displayName, response.data.tradeSpecs, response.data.usdBalance));
                 }
             },
             () => {
@@ -92,7 +92,7 @@ class CoinbaseProPortfolio {
             },
             (response) => {
                 if (onSuccess) {
-                    onSuccess(new CoinbaseProPortfolio(response.data.id, response.data.displayName, response.data.tradeSpecs));
+                    onSuccess(new CoinbaseProPortfolio(response.data.id, response.data.displayName, response.data.tradeSpecs, response.data.usdBalance));
                 }
             },
             () => {
@@ -121,7 +121,7 @@ class CoinbaseProPortfolio {
             },
             (response) => {
                 if (onSuccess) {
-                    onSuccess(new CoinbaseProPortfolio(response.data.id, response.data.displayName, response.data.tradeSpecs));
+                    onSuccess(new CoinbaseProPortfolio(response.data.id, response.data.displayName, response.data.tradeSpecs, response.data.usdBalance));
                 }
             },
             () => {
