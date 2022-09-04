@@ -89,6 +89,24 @@ def _get_portfolio_name(client: CbProAuthenticatedClient, profile_id: ProfileId)
     return profile_data["name"]
 
 
+def _get_portfolio_usd_balance(
+    client: CbProAuthenticatedClient, profile_id: ProfileId
+) -> float:
+    currency_accounts = client.get_accounts()
+    usd_accounts = [
+        acc
+        for acc in currency_accounts
+        if acc["currency"] == "USD" and acc["trading_enabled"]
+    ]
+    assert (
+        len(usd_accounts) == 1
+    ), f"Found more than one USD account for profile {profile_id.get_guid()}"
+
+    [usd_account] = usd_accounts
+    assert usd_account["profile_id"] == profile_id.identifier
+    return round(float(usd_account["available"]), ndigits=2)
+
+
 def _portfolio_to_response(
     profile_id: ProfileId,
     client: Optional[CbProAuthenticatedClient] = None,
@@ -102,6 +120,7 @@ def _portfolio_to_response(
         tradeSpecs=[
             spec.to_dict() for spec in sorted(trade_specs, key=lambda s: s.product)
         ],
+        usdBalance=_get_portfolio_usd_balance(client, profile_id),
     )
 
 
