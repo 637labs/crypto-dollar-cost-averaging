@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Button, CircularProgress, Grid } from '@material-ui/core';
+import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Button, CircularProgress, Grid, Typography } from '@material-ui/core';
 import { Autocomplete } from '@material-ui/lab';
 import EditIcon from '@material-ui/icons/Edit';
 import SaveIcon from '@material-ui/icons/Save';
@@ -7,6 +7,8 @@ import AddIcon from '@material-ui/icons/Add';
 
 import { AssetAllocation } from '../api/PortfolioData';
 import { Product, CoinbaseProAPI } from '../api/CoinbaseProData';
+
+const CASH_RUNWAY_DAYS_WARNING_THRESHOLD = 5;
 
 interface AssetAllocationConfigProps {
     productId: string;
@@ -181,18 +183,22 @@ function PortfolioConfig(props: EnhancedPortfolioConfigProps): JSX.Element {
     }
 
     const currentAllocatedProductIds = props.initialAllocations.map(allocation => allocation.productId).concat(addedAllocations);
+    const totalDailyContributions = currentAllocatedProductIds.map(productId => allocationAmounts[productId]).reduce<number>((sum, x) => sum + x, 0);
+    const cashRunwayDays = Math.floor(props.usdBalance / totalDailyContributions);
+    const runwayTextColor = cashRunwayDays <= CASH_RUNWAY_DAYS_WARNING_THRESHOLD ? 'error' : 'textPrimary';
     return (
-        <div>
+        <Box
+            sx={{ minWidth: 500, maxWidth: 800 }}
+        >
             <Grid container spacing={2}>
-                <Grid item xs={2}><div>USD Balance:</div></Grid>
-                <Grid item xs={1}><div>${props.usdBalance}</div></Grid>
-            </Grid>
-            <Grid container spacing={2}>
-                <Grid item xs={2}><div>Total daily contributions:</div></Grid>
-                <Grid item xs={1}><div>${currentAllocatedProductIds.map(productId => allocationAmounts[productId]).reduce<number>((sum, x) => sum + x, 0)}</div></Grid>
+                <Grid item xs={4}><Typography color='textPrimary'>USD Balance:</Typography></Grid>
+                <Grid item xs={8}><Typography color={runwayTextColor}>${props.usdBalance}</Typography></Grid>
+                <Grid item xs={4}><Typography color='textPrimary'>Total daily contributions:</Typography></Grid>
+                <Grid item xs={8}><Typography color='textPrimary'>${totalDailyContributions}</Typography></Grid>
+                <Grid item xs={4}><Typography color='textPrimary'>Cash runway:</Typography></Grid>
+                <Grid item xs={8}><Typography color={runwayTextColor}>{cashRunwayDays} days</Typography></Grid>
             </Grid>
             <TableContainer component={Paper}>
-                {/* <Table sx={{ minWidth: 650 }}> */}
                 <Table>
                     <TableHead>
                         <TableRow>
@@ -242,7 +248,7 @@ function PortfolioConfig(props: EnhancedPortfolioConfigProps): JSX.Element {
             {saving && (
                 <CircularProgress />
             )}
-        </div>
+        </Box>
     );
 };
 
