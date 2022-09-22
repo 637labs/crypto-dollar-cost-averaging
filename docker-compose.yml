@@ -7,6 +7,7 @@ services:
         environment:
             PORT: "9000"
             GCLOUD_PROJECT: ${gcloudProject}
+            INSUFFICIENT_FUNDS_TOPIC: ${insufficientFundsTopic}
         volumes:
             - ${localDevHome}/.config/gcloud:/home/tradebot/.config/gcloud:ro
     schedule-fanout:

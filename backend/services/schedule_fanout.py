@@ -1,3 +1,4 @@
+import os
 import sys
 from typing import Generator, Tuple
 
@@ -39,7 +40,7 @@ def handle_event():
     print(f"Starting fanout for schedule '{schedule_id}'...")
 
     events_count = 0
-    with publisher() as pub:
+    with publisher(os.environ["TARGET_TOPIC"]) as pub:
         for namespace, identifier, product_id in _get_target_deposits_on_schedule(
             schedule_id
         ):
