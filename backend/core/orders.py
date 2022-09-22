@@ -1,8 +1,10 @@
 import base64
+import os
 import uuid
 from datetime import date
 
 from coinbasepro import AuthenticatedClient
+from coinbasepro.exceptions import BadRequest
 
 from .firestore_helper import (
     SERVER_TIMESTAMP,
@@ -13,9 +15,17 @@ from .firestore_helper import (
     transactional,
 )
 from .profile import ProfileId
+from .pubsub_helper import publisher
 from .trade_spec import ProductId, TradeSpec
 
 _ORDER_RECORDS_COLLECTION = "order_records"
+
+
+class UnhandledMarketOrderException(Exception):
+    def __init__(self, profile_id: ProfileId, product_id: ProductId, err: Exception):
+        super(UnhandledMarketOrderException).__init__(
+            f"Unhandled market order exception for ProfileId@{profile_id.get_guid()} | {product_id}: {err}"
+        )
 
 
 class DailyTargetDepositReached(Exception):
@@ -101,16 +111,32 @@ def _mark_order_rejected(order_ref, response_obj):
 def place_market_buy(client: AuthenticatedClient, profile: ProfileId, spec: TradeSpec):
     # Create a record of the order we want to place
     order_ref, client_oid = _try_create_order_record(profile, spec)
+
     # Place the order
-    response = client.place_market_order(
-        spec.get_product_id(),
-        "buy",
-        funds=str(spec.get_quote_amount()),
-        client_oid=client_oid,
-    )
-    # Update our records with the server-generated order ID
-    if "id" in response:
-        server_oid = response["id"]
-        _update_order_record(order_ref, server_oid)
+    try:
+        response = client.place_market_order(
+            spec.get_product_id(),
+            "buy",
+            funds=str(spec.get_quote_amount()),
+            client_oid=client_oid,
+        )
+    except BadRequest as err:
+        if "Insufficient funds" in str(err):
+            with publisher(os.environ["INSUFFICIENT_FUNDS_TOPIC"]) as pub:
+                pub.publish_event({"profileId": profile.get_guid()})
+            _mark_order_rejected(order_ref, "Insufficient funds")
+        else:
+            raise UnhandledMarketOrderException(
+                profile, spec.get_product_id(), err
+            ) from err
+    except Exception as err:
+        raise UnhandledMarketOrderException(
+            profile, spec.get_product_id(), err
+        ) from err
     else:
-        _mark_order_rejected(order_ref, response)
+        # Update our records with the server-generated order ID
+        if "id" in response:
+            server_oid = response["id"]
+            _update_order_record(order_ref, server_oid)
+        else:
+            _mark_order_rejected(order_ref, response)

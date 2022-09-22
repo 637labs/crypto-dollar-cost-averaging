@@ -10,10 +10,8 @@ _CLIENT = pubsub_v1.PublisherClient()
 
 
 class _ContextualPublisher:
-    def __init__(self, futures: list):
-        self._topic_path = _CLIENT.topic_path(
-            os.environ["GCLOUD_PROJECT"], os.environ["TARGET_TOPIC"]
-        )
+    def __init__(self, topic: str, futures: list):
+        self._topic_path = _CLIENT.topic_path(os.environ["GCLOUD_PROJECT"], topic)
         self._futures = futures
 
     def publish_event(self, data: dict) -> None:
@@ -24,9 +22,9 @@ class _ContextualPublisher:
 
 
 @contextmanager
-def publisher():
+def publisher(topic: str):
     futures = []
-    yield _ContextualPublisher(futures)
+    yield _ContextualPublisher(topic, futures)
     [f.result() for f in futures]
 
 
