@@ -6,12 +6,11 @@ import {
 } from 'react-router-dom';
 
 import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
+import Button from '@material-ui/core/Button';
+import HomeIcon from '@material-ui/icons/Home';
 import IconButton from '@material-ui/core/IconButton';
+import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import MenuIcon from '@material-ui/icons/Menu';
-import LayersIcon from '@material-ui/icons/Layers';
-import DirectionsBusIcon from '@material-ui/icons/DirectionsBus';
 
 import { AuthenticatedUserContext } from '../UserContext';
 
@@ -26,17 +25,13 @@ const useStyles = makeStyles((theme) => ({
   toolbar: {
     minHeight: 70
   },
-  menuButton: {
-    display: 'none',
-    marginRight: theme.spacing(1),
-    [theme.breakpoints.down('md')]: {
-      display: 'inline-flex',
-    }
-  },
   profile: {
     [theme.breakpoints.down('sm')]: {
       display: 'none',
     }
+  },
+  link: {
+    textDecoration: 'none',
   },
 }
 ));
@@ -55,8 +50,23 @@ export default function VerticalNav(): JSX.Element {
     <div className={classes.root}>
       <AppBar position="fixed" className={classes.appBar}>
         <Toolbar className={classes.toolbar}>
-          <Link to="/dashboard" >Dashboard</Link>
-          <Link style={{ marginRight: 'auto' }} to="/keyconfig" >API Key</Link>
+          <IconButton edge="start" color="inherit" aria-label="menu">
+            <HomeIcon />
+          </IconButton>
+          <Link className={classes.link} to="/dashboard" >
+            <Button >
+              <Typography variant="body1" color="textPrimary" paragraph={false}>
+                Dashboard
+              </Typography>
+            </Button>
+          </Link>
+          <Link className={classes.link} style={{ marginRight: 'auto' }} to="/keyconfig" >
+            <Button >
+              <Typography variant="body1" color="textPrimary" paragraph={false}>
+                API Key
+              </Typography>
+            </Button>
+          </Link>
           <Typography variant="body1" color="inherit" className={classes.profile} paragraph={false}>
             Logged in as {authedUser.displayName}
           </Typography>
