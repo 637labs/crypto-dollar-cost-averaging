@@ -4,6 +4,8 @@ import { Autocomplete } from '@material-ui/lab';
 import EditIcon from '@material-ui/icons/Edit';
 import SaveIcon from '@material-ui/icons/Save';
 import AddIcon from '@material-ui/icons/Add';
+import DeleteIcon from '@material-ui/icons/Delete';
+import IconButton from '@material-ui/core/IconButton';
 
 import { AssetAllocation } from '../api/PortfolioData';
 import { Product, CoinbaseProAPI } from '../api/CoinbaseProData';
@@ -18,9 +20,7 @@ interface AssetAllocationConfigProps {
 
 function AssetAllocationRow(props: AssetAllocationConfigProps): JSX.Element {
     return (
-        <TableRow
-        // sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-        >
+        <TableRow>
             <TableCell component="th" scope="row">
                 {props.displayName}
             </TableCell>
@@ -35,6 +35,7 @@ function _isInteger(x: string): boolean {
 
 interface EditableAssetAllocationRowProps extends AssetAllocationConfigProps {
     onDailyAmountUpdate: (updatedDailyAmount: number) => void;
+    onDeleteAsset: () => void;
 }
 
 function EditableAssetAllocationRow(props: EditableAssetAllocationRowProps): JSX.Element {
@@ -57,6 +58,9 @@ function EditableAssetAllocationRow(props: EditableAssetAllocationRowProps): JSX
                     value={dailyAmount}
                     onChange={handleDailyAmountChange}
                 />
+                <IconButton style={{ "marginLeft": 20 }} color="inherit" aria-label="delete" onClick={props.onDeleteAsset}>
+                    <DeleteIcon />
+                </IconButton>
             </TableCell>
         </TableRow>
     );
@@ -133,11 +137,20 @@ function PortfolioConfig(props: EnhancedPortfolioConfigProps): JSX.Element {
         Object.fromEntries<number>(props.initialAllocations.map(allocation => [allocation.productId, allocation.dailyTargetAmount]))
     );
     const [addedAllocations, setAddedAllocations] = useState<ProductId[]>([]);
+    const [currentAllocatedProductIds, setCurrentAllocatedProductIds] = useState<string[]>(
+        props.initialAllocations.map(allocation => allocation.productId));
 
     const handleUpdateAllocation = (productId: string) => {
         return (updatedDailyAmount: number) => {
             setAllocationAmounts({ ...allocationAmounts, [productId]: updatedDailyAmount });
         };
+    }
+
+    const handleDeleteAsset = (productId: string) => {
+        return () => {
+            setAllocationAmounts({ ...allocationAmounts, [productId]: 0 });
+            setCurrentAllocatedProductIds(currentAllocatedProductIds.filter(id => id !== productId));
+        }
     }
 
     const handleSave = () => {
@@ -182,7 +195,6 @@ function PortfolioConfig(props: EnhancedPortfolioConfigProps): JSX.Element {
         })
     }
 
-    const currentAllocatedProductIds = props.initialAllocations.map(allocation => allocation.productId).concat(addedAllocations);
     const totalDailyContributions = currentAllocatedProductIds.map(productId => allocationAmounts[productId]).reduce<number>((sum, x) => sum + x, 0);
     const cashRunwayDays = Math.floor(props.usdBalance / totalDailyContributions);
     const runwayTextColor = cashRunwayDays <= CASH_RUNWAY_DAYS_WARNING_THRESHOLD ? 'error' : 'textPrimary';
@@ -215,6 +227,7 @@ function PortfolioConfig(props: EnhancedPortfolioConfigProps): JSX.Element {
                                     displayName={props.productsById[productId].displayName}
                                     dailyTargetAmount={allocationAmounts[productId]}
                                     onDailyAmountUpdate={handleUpdateAllocation(productId)}
+                                    onDeleteAsset={handleDeleteAsset(productId)}
                                 /> :
                                 <AssetAllocationRow
                                     key={productId}
@@ -227,6 +240,7 @@ function PortfolioConfig(props: EnhancedPortfolioConfigProps): JSX.Element {
                             <NewAssetAllocationRow
                                 options={props.allProducts.filter(product => !currentAllocatedProductIds.includes(product.id))}
                                 onSubmitAssetAddition={(product) => {
+                                    setCurrentAllocatedProductIds(prevIds => [...prevIds, product.id]);
                                     setAddedAllocations(prevAddedAllocations => [...prevAddedAllocations, product.id]);
                                     setAllocationAmounts({ ...allocationAmounts, [product.id]: 0 });
                                 }}
