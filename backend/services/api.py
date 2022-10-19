@@ -7,6 +7,7 @@ from backend.core.cbpro_client_helper import (
     PROFILE_NAMESPACE_TO_API_URL,
     CbProAuthenticatedClient,
     get_client as get_cbpro_client,
+    InvalidAPIKeyScopeError,
 )
 from backend.core.profile import (
     DEFAULT_NS,
@@ -74,6 +75,18 @@ def _get_profile_identifier(client: CbProAuthenticatedClient) -> str:
     assert len(profile_ids) == 1
     [identifier] = [p_id for p_id in profile_ids]
     return identifier
+
+
+def _check_api_key_scopes(client: CbProAuthenticatedClient) -> None:
+    cb_accounts = client.get_coinbase_accounts()
+    [usd_account] = [acc for acc in cb_accounts if acc["currency"] == "USD"]
+    try:
+        client.withdraw_to_coinbase(0.1, "USD", usd_account["id"])
+    except InvalidAPIKeyScopeError:
+        # good, we want to make sure the API key does *not* have the 'transfer' scope
+        pass
+    else:
+        raise InvalidAPIKeyScopeError
 
 
 def _set_profile_secrets(
@@ -146,6 +159,16 @@ def handle_create_cbpro_profile():
         api_key, api_secret, api_passphrase, api_url=api_url
     )
     identifier = _get_profile_identifier(client)
+
+    # validate API key scopes
+    try:
+        _check_api_key_scopes(client)
+    except InvalidAPIKeyScopeError:
+        return (
+            "API key has 'transfer' permission -- for your security, "
+            "please create a new token without the 'transfer' permission",
+            400,
+        )
 
     # create profile
     profile_id = get_or_create_profile(namespace, identifier, user_id)
