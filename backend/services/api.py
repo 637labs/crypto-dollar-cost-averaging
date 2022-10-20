@@ -7,6 +7,7 @@ from backend.core.cbpro_client_helper import (
     PROFILE_NAMESPACE_TO_API_URL,
     CbProAuthenticatedClient,
     get_client as get_cbpro_client,
+    InvalidAPIKeyScopeError,
 )
 from backend.core.profile import (
     DEFAULT_NS,
@@ -32,6 +33,10 @@ from backend.core.secrets.user_secrets import (
 from backend.core.user import get_by_guid as get_user_by_guid, get_or_create_user
 
 app = Flask(__name__)
+
+
+class ExcessiveAPIKeyPermissionsError(Exception):
+    pass
 
 
 @app.route("/user/get-or-create/v1", methods=["POST"])
@@ -74,6 +79,26 @@ def _get_profile_identifier(client: CbProAuthenticatedClient) -> str:
     assert len(profile_ids) == 1
     [identifier] = [p_id for p_id in profile_ids]
     return identifier
+
+
+def _check_api_key_scopes(client: CbProAuthenticatedClient) -> None:
+    """
+    Attempts to make a request that _should_ fail unless excessive permissions were given.
+
+    WARNING: the deposit endpoint (and all others that I tests, fwiw) returns a 403 regardless
+    of whether or not the API key has the 'transfer' permission if it's not created for
+    the default portfolio. In other words, there is currently no great way
+    to assert that the API key does not have excessive permissions.
+    """
+    cb_accounts = client.get_coinbase_accounts()
+    [usd_account] = [acc for acc in cb_accounts if acc["currency"] == "USD"]
+    try:
+        client.deposit_from_coinbase(1, "USD", usd_account["id"])
+    except InvalidAPIKeyScopeError:
+        # good, we want to make sure the API key does *not* have the 'transfer' scope
+        pass
+    else:
+        raise ExcessiveAPIKeyPermissionsError
 
 
 def _set_profile_secrets(
@@ -146,6 +171,19 @@ def handle_create_cbpro_profile():
         api_key, api_secret, api_passphrase, api_url=api_url
     )
     identifier = _get_profile_identifier(client)
+
+    # validate API key scopes
+    try:
+        _check_api_key_scopes(client)
+    except ExcessiveAPIKeyPermissionsError:
+        # Flush the stdout to avoid log buffering.
+        sys.stdout.flush()
+
+        return (
+            "API key has 'transfer' permission -- for your security, "
+            "please create a new token without the 'transfer' permission",
+            400,
+        )
 
     # create profile
     profile_id = get_or_create_profile(namespace, identifier, user_id)
