@@ -44,3 +44,22 @@ Primary.args = {
         return sleep(200);
     }
 };
+
+export const ZeroAllocation = Template.bind({});
+ZeroAllocation.args = {
+    id: "portfolio-abc123",
+    displayName: "My DCA Portfolio",
+    usdBalance: 1000,
+    initialAllocations: [{ productId: "ETH-USD", dailyTargetAmount: 0 }, { productId: "BTC-USD", dailyTargetAmount: 0 }],
+    allProducts: ALL_PRODUCTS,
+    productsById: PRODUCTS_BY_ID,
+    onPortfolioUpdate: () => {
+        return Promise.resolve();
+    },
+    setAssetAllocation: (portfolioId: string, allocation: AssetAllocation) => {
+        return sleep(200);
+    },
+    removeAssetAllocation: (portfolioId: string, productId: string) => {
+        return sleep(200);
+    }
+};
