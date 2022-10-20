@@ -157,6 +157,10 @@ def get_or_create_profile(
     return _get_or_create_profile(transaction, namespace, identifier, user)
 
 
+def delete_profile(profile_id: ProfileId) -> None:
+    get_db().collection(_PROFILES_COLLECTION).document(profile_id.get_guid()).delete()
+
+
 def get_for_user(user: UserId, namespace: str) -> Optional[ProfileId]:
     query = (
         get_db()
