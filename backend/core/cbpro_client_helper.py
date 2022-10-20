@@ -2,7 +2,7 @@ import os
 
 from coinbasepro import AuthenticatedClient, PublicClient
 from coinbasepro.exceptions import (  # noqa # pylint: disable=unused-import
-    InvalidAPIKey as InvalidAPIKeyScopeError,
+    InvalidAuthorization as InvalidAPIKeyScopeError,
 )
 
 from .profile import CBPRO_BETA_NS, LOCAL_NS, SANDBOX_NS, ProfileId

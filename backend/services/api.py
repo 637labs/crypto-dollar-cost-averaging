@@ -35,6 +35,10 @@ from backend.core.user import get_by_guid as get_user_by_guid, get_or_create_use
 app = Flask(__name__)
 
 
+class ExcessiveAPIKeyPermissionsError(Exception):
+    pass
+
+
 @app.route("/user/get-or-create/v1", methods=["POST"])
 def handle_get_or_create_user():
     envelope = request.get_json()
@@ -81,12 +85,12 @@ def _check_api_key_scopes(client: CbProAuthenticatedClient) -> None:
     cb_accounts = client.get_coinbase_accounts()
     [usd_account] = [acc for acc in cb_accounts if acc["currency"] == "USD"]
     try:
-        client.withdraw_to_coinbase(0.1, "USD", usd_account["id"])
+        client.deposit_from_coinbase(1, "USD", usd_account["id"])
     except InvalidAPIKeyScopeError:
         # good, we want to make sure the API key does *not* have the 'transfer' scope
         pass
     else:
-        raise InvalidAPIKeyScopeError
+        raise ExcessiveAPIKeyPermissionsError
 
 
 def _set_profile_secrets(
@@ -163,7 +167,10 @@ def handle_create_cbpro_profile():
     # validate API key scopes
     try:
         _check_api_key_scopes(client)
-    except InvalidAPIKeyScopeError:
+    except ExcessiveAPIKeyPermissionsError:
+        # Flush the stdout to avoid log buffering.
+        sys.stdout.flush()
+
         return (
             "API key has 'transfer' permission -- for your security, "
             "please create a new token without the 'transfer' permission",
