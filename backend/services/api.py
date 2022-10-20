@@ -82,6 +82,14 @@ def _get_profile_identifier(client: CbProAuthenticatedClient) -> str:
 
 
 def _check_api_key_scopes(client: CbProAuthenticatedClient) -> None:
+    """
+    Attempts to make a request that _should_ fail unless excessive permissions were given.
+
+    WARNING: the deposit endpoint (and all others that I tests, fwiw) returns a 403 regardless
+    of whether or not the API key has the 'transfer' permission if it's not created for
+    the default portfolio. In other words, there is currently no great way
+    to assert that the API key does not have excessive permissions.
+    """
     cb_accounts = client.get_coinbase_accounts()
     [usd_account] = [acc for acc in cb_accounts if acc["currency"] == "USD"]
     try:
