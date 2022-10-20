@@ -7,6 +7,7 @@ import AddIcon from '@material-ui/icons/Add';
 
 import { AssetAllocation } from '../api/PortfolioData';
 import { Product, CoinbaseProAPI } from '../api/CoinbaseProData';
+import { number } from 'prop-types';
 
 const CASH_RUNWAY_DAYS_WARNING_THRESHOLD = 5;
 
@@ -184,8 +185,9 @@ function PortfolioConfig(props: EnhancedPortfolioConfigProps): JSX.Element {
 
     const currentAllocatedProductIds = props.initialAllocations.map(allocation => allocation.productId).concat(addedAllocations);
     const totalDailyContributions = currentAllocatedProductIds.map(productId => allocationAmounts[productId]).reduce<number>((sum, x) => sum + x, 0);
-    const cashRunwayDays = Math.floor(props.usdBalance / totalDailyContributions);
+    const cashRunwayDays = totalDailyContributions > 0 ? Math.floor(props.usdBalance / totalDailyContributions) : Infinity;
     const runwayTextColor = cashRunwayDays <= CASH_RUNWAY_DAYS_WARNING_THRESHOLD ? 'error' : 'textPrimary';
+    const runwayString = cashRunwayDays == Infinity ? '--' : `${cashRunwayDays} days`;
     return (
         <Box
             sx={{ minWidth: 500, maxWidth: 800 }}
@@ -196,7 +198,7 @@ function PortfolioConfig(props: EnhancedPortfolioConfigProps): JSX.Element {
                 <Grid item xs={4}><Typography color='textPrimary'>Total daily contributions:</Typography></Grid>
                 <Grid item xs={8}><Typography color='textPrimary'>${totalDailyContributions}</Typography></Grid>
                 <Grid item xs={4}><Typography color='textPrimary'>Cash runway:</Typography></Grid>
-                <Grid item xs={8}><Typography color={runwayTextColor}>{cashRunwayDays} days</Typography></Grid>
+                <Grid item xs={8}><Typography color={runwayTextColor}>{runwayString}</Typography></Grid>
             </Grid>
             <TableContainer component={Paper}>
                 <Table>
