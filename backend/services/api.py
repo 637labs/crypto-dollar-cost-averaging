@@ -7,6 +7,7 @@ from backend.core.cbpro_client_helper import (
     PROFILE_NAMESPACE_TO_API_URL,
     CbProAuthenticatedClient,
     get_client as get_cbpro_client,
+    InvalidCoinbaseProAPIKey,
 )
 from backend.core.profile import (
     DEFAULT_NS,
@@ -14,11 +15,15 @@ from backend.core.profile import (
     get_for_user,
     get_or_create_profile,
     get_by_guid as get_profile_by_guid,
+    delete_profile,
 )
 from backend.core.secrets.profile_secrets import (
     set_api_b64_secret,
     set_api_key,
     set_api_passphrase,
+    delete_api_key,
+    delete_api_b64_secret,
+    delete_api_passphrase,
 )
 from backend.core.trade_spec import (
     get_all_trade_specs,
@@ -84,6 +89,12 @@ def _set_profile_secrets(
     set_api_passphrase(profile_id, api_passphrase)
 
 
+def _delete_profile_secrets(profile_id: ProfileId) -> None:
+    delete_api_key(profile_id)
+    delete_api_b64_secret(profile_id)
+    delete_api_passphrase(profile_id)
+
+
 def _get_portfolio_name(client: CbProAuthenticatedClient, profile_id: ProfileId) -> str:
     profile_data = client.get_profile(profile_id.identifier)
     return profile_data["name"]
@@ -112,16 +123,27 @@ def _portfolio_to_response(
     client: Optional[CbProAuthenticatedClient] = None,
     include_trade_specs: bool = True,
 ) -> Response:
-    client = client or get_cbpro_client(profile_id)
-    trade_specs = get_all_trade_specs(profile_id) if include_trade_specs else []
-    return jsonify(
-        id=profile_id.get_guid(),
-        displayName=_get_portfolio_name(client, profile_id),
-        tradeSpecs=[
-            spec.to_dict() for spec in sorted(trade_specs, key=lambda s: s.product)
-        ],
-        usdBalance=_get_portfolio_usd_balance(client, profile_id),
-    )
+    try:
+        client = client or get_cbpro_client(profile_id)
+        trade_specs = get_all_trade_specs(profile_id) if include_trade_specs else []
+        return jsonify(
+            id=profile_id.get_guid(),
+            displayName=_get_portfolio_name(client, profile_id),
+            tradeSpecs=[
+                spec.to_dict() for spec in sorted(trade_specs, key=lambda s: s.product)
+            ],
+            usdBalance=_get_portfolio_usd_balance(client, profile_id),
+        )
+    except InvalidCoinbaseProAPIKey:
+        print(
+            f"Invalid Coinbase Pro API key for ProfileId@{profile_id.get_guid()} -- deleting portfolio ..."
+        )
+        _delete_profile_secrets(profile_id)
+        print(f"Deleted secrets for ProfileId@{profile_id.get_guid()}")
+        delete_profile(profile_id)
+        print(f"Deleted ProfileId@{profile_id.get_guid()}")
+
+        return ("", 404)
 
 
 @app.route("/user/portfolio-profile/create/v1", methods=["POST"])

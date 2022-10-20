@@ -48,6 +48,10 @@ def create_secret(secret_name: str, secret_payload: str) -> None:
     )
 
 
+def delete_secret(secret_name: str) -> None:
+    _get_client().delete_secret(name=_get_qualified_secret_name(secret_name))
+
+
 def set_secret(secret_name: str, secret_payload: str) -> None:
     try:
         secret = _get_client().get_secret(name=_get_qualified_secret_name(secret_name))
