@@ -99,6 +99,30 @@ class CoinbaseProPortfolio {
         );
     }
 
+    static list(
+        user: CoinbaseUser,
+        onSuccess: (portfolios: [{ id: string, displayName: string }]) => void,
+        onFailure: () => void
+    ) {
+        ApiService.authenticatedRequest(
+            {
+                method: 'get',
+                url: `/user/${user.id}/portfolios/v1`,
+                responseType: 'json'
+            },
+            (response) => {
+                if (onSuccess) {
+                    onSuccess(response.data.portfolios);
+                }
+            },
+            () => {
+                if (onFailure) {
+                    onFailure();
+                }
+            }
+        );
+    }
+
     static setTradeSpec(
         portfolioId: string,
         user: CoinbaseUser,
