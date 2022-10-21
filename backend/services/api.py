@@ -12,10 +12,11 @@ from backend.core.cbpro_client_helper import (
 from backend.core.profile import (
     DEFAULT_NS,
     ProfileId,
-    get_for_user,
+    get_one_or_none_for_user,
     get_or_create_profile,
     get_by_guid as get_profile_by_guid,
     delete_profile,
+    list_user_profiles,
     ProfileNotFoundError,
     ProfileUserMismatchError,
 )
@@ -154,6 +155,13 @@ def _portfolio_to_response(
         return ("", 404)
 
 
+def _profile_id_to_light_dict(profile_id: ProfileId) -> dict:
+    return {
+        "id": profile_id.get_guid(),
+        "displayName": _get_portfolio_name(get_cbpro_client(profile_id), profile_id),
+    }
+
+
 @app.route("/user/portfolio-profile/create/v1", methods=["POST"])
 def handle_create_cbpro_profile():
     envelope = request.get_json()
@@ -200,11 +208,25 @@ def deprecated_handle_view_cbpro_profile():
     except KeyError as err:
         return (str(err), 400)
 
-    profile_id = get_for_user(user_id, namespace)
+    profile_id = get_one_or_none_for_user(user_id, namespace)
     if profile_id:
         return _portfolio_to_response(profile_id)
     else:
         return ("", 404)
+
+
+@app.route("/user/<user_guid>/portfolios/v1", methods=["GET"])
+def handle_list_cbpro_portfolios(user_guid: str):
+    try:
+        user = get_user_by_guid(user_guid)
+    except UserNotFoundError as err:
+        return (str(err), 404)
+    return jsonify(
+        portfolios=[
+            _profile_id_to_light_dict(profile_id)
+            for profile_id in list_user_profiles(user)
+        ]
+    )
 
 
 @app.route("/user/<user_guid>/portfolio/<portfolio_guid>/v1", methods=["GET"])
