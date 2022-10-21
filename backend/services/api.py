@@ -12,7 +12,6 @@ from backend.core.cbpro_client_helper import (
 from backend.core.profile import (
     DEFAULT_NS,
     ProfileId,
-    get_one_or_none_for_user,
     get_or_create_profile,
     get_by_guid as get_profile_by_guid,
     delete_profile,
@@ -195,24 +194,6 @@ def handle_create_cbpro_profile():
     sys.stdout.flush()
 
     return _portfolio_to_response(profile_id, client, include_trade_specs=False)
-
-
-@app.route("/user/portfolio-profile/view/v1", methods=["POST"])
-def deprecated_handle_view_cbpro_profile():
-    envelope = request.get_json()
-
-    try:
-        user_id = get_user_by_guid(envelope["userId"])
-
-        namespace = envelope.get("profileNamespace", DEFAULT_NS)
-    except KeyError as err:
-        return (str(err), 400)
-
-    profile_id = get_one_or_none_for_user(user_id, namespace)
-    if profile_id:
-        return _portfolio_to_response(profile_id)
-    else:
-        return ("", 404)
 
 
 @app.route("/user/<user_guid>/portfolios/v1", methods=["GET"])
