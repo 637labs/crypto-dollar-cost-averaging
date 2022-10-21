@@ -1,6 +1,6 @@
 import base64
 import os
-from typing import Optional
+from typing import List, Optional
 
 from backend.core.firestore_helper import get_db, lock_on_key, transactional
 from backend.core.user import UserId
@@ -169,7 +169,7 @@ def delete_profile(profile_id: ProfileId) -> None:
     get_db().collection(_PROFILES_COLLECTION).document(profile_id.get_guid()).delete()
 
 
-def get_for_user(user: UserId, namespace: str) -> Optional[ProfileId]:
+def get_one_or_none_for_user(user: UserId, namespace: str) -> Optional[ProfileId]:
     query = (
         get_db()
         .collection(_PROFILES_COLLECTION)
@@ -181,6 +181,17 @@ def get_for_user(user: UserId, namespace: str) -> Optional[ProfileId]:
         [profile] = matches
         return ProfileId(profile.get("namespace"), profile.get("identifier"))
     return None
+
+
+def list_user_profiles(user: UserId) -> List[ProfileId]:
+    query = (
+        get_db().collection(_PROFILES_COLLECTION).where("user", "==", user.get_guid())
+    )
+    matches = list(query.stream())
+    return [
+        ProfileId(profile.get("namespace"), profile.get("identifier"))
+        for profile in matches
+    ]
 
 
 def get_by_guid(profile_guid: str, user: Optional[UserId] = None) -> ProfileId:
