@@ -17,15 +17,19 @@ export default function DashboardContent(): JSX.Element {
         PortfolioAPI.listPortfolios(
             portfolios => {
                 // TODO: add support for multiple portfolios
-                if (portfolios.length !== 1) {
-                    throw new Error(`Expected 1 portfolio, found ${portfolios.length}`);
+                if (portfolios.length > 1) {
+                    throw new Error(`Expected no more than one portfolio, found ${portfolios.length}`);
                 }
-                PortfolioAPI.fetchPortfolio(
-                    portfolios[0].id,
-                    portfolio => setPortfolioDetails(portfolio),
-                    () => setAuthNeeded(true),
-                    () => setShowApiKeyForm(true)
-                )
+                if (portfolios.length === 1) {
+                    PortfolioAPI.fetchPortfolio(
+                        portfolios[0].id,
+                        portfolio => setPortfolioDetails(portfolio),
+                        () => setAuthNeeded(true),
+                        () => setShowApiKeyForm(true)
+                    )
+                } else {
+                    setShowApiKeyForm(true)
+                }
             },
             () => setAuthNeeded(true),
             () => setShowApiKeyForm(true)
