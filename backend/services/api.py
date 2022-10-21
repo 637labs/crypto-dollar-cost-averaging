@@ -16,6 +16,8 @@ from backend.core.profile import (
     get_or_create_profile,
     get_by_guid as get_profile_by_guid,
     delete_profile,
+    ProfileNotFoundError,
+    ProfileUserMismatchError,
 )
 from backend.core.secrets.profile_secrets import (
     set_api_b64_secret,
@@ -34,7 +36,11 @@ from backend.core.secrets.user_secrets import (
     set_basic_access_token,
     set_basic_refresh_token,
 )
-from backend.core.user import get_by_guid as get_user_by_guid, get_or_create_user
+from backend.core.user import (
+    get_by_guid as get_user_by_guid,
+    get_or_create_user,
+    UserNotFoundError,
+)
 
 app = Flask(__name__)
 
@@ -65,8 +71,10 @@ def handle_set_basic_oauth_creds():
         creds_params = envelope["oauthCredentials"]
         set_basic_access_token(user_id, creds_params["accessToken"])
         set_basic_refresh_token(user_id, creds_params["refreshToken"])
-    except KeyError as e:
-        return (str(e), 400)
+    except KeyError as err:
+        return (str(err), 400)
+    except UserNotFoundError as err:
+        return (str(err), 404)
 
     # Flush the stdout to avoid log buffering.
     sys.stdout.flush()
@@ -159,8 +167,10 @@ def handle_create_cbpro_profile():
         api_key = creds["apiKey"]
         api_secret = creds["b64Secret"]
         api_passphrase = creds["passphrase"]
-    except KeyError as e:
-        return (str(e), 400)
+    except KeyError as err:
+        return (str(err), 400)
+    except UserNotFoundError as err:
+        return (str(err), 404)
 
     # fetch CBPro profile id
     api_url = PROFILE_NAMESPACE_TO_API_URL[namespace]
@@ -180,21 +190,35 @@ def handle_create_cbpro_profile():
 
 
 @app.route("/user/portfolio-profile/view/v1", methods=["POST"])
-def handle_view_cbpro_profile():
+def deprecated_handle_view_cbpro_profile():
     envelope = request.get_json()
 
     try:
         user_id = get_user_by_guid(envelope["userId"])
 
         namespace = envelope.get("profileNamespace", DEFAULT_NS)
-    except KeyError as e:
-        return (str(e), 400)
+    except KeyError as err:
+        return (str(err), 400)
 
     profile_id = get_for_user(user_id, namespace)
     if profile_id:
         return _portfolio_to_response(profile_id)
     else:
         return ("", 404)
+
+
+@app.route("/user/<user_guid>/portfolio/<portfolio_guid>/v1", methods=["GET"])
+def handle_get_cbpro_portfolio(user_guid: str, portfolio_guid: str):
+    try:
+        user = get_user_by_guid(user_guid)
+        profile_id = get_profile_by_guid(portfolio_guid, user)
+    except UserNotFoundError as err:
+        return (str(err), 404)
+    except (ProfileNotFoundError, ProfileUserMismatchError) as err:
+        print(err)
+        return ("Portfolio not found", 404)
+    else:
+        return _portfolio_to_response(profile_id)
 
 
 @app.route(
@@ -207,10 +231,16 @@ def handle_set_allocation(profile_guid: str, product_id: str):
     try:
         user_id = get_user_by_guid(envelope["userId"])
         target_amount = envelope["dailyTargetAmount"]
-    except KeyError as e:
-        return (str(e), 400)
+    except KeyError as err:
+        return (str(err), 400)
+    except UserNotFoundError as err:
+        return (str(err), 404)
 
-    profile_id = get_profile_by_guid(profile_guid, user=user_id)
+    try:
+        profile_id = get_profile_by_guid(profile_guid, user=user_id)
+    except (ProfileNotFoundError, ProfileUserMismatchError) as err:
+        print(err)
+        return ("Portfolio not found", 404)
     set_allocation(profile_id, product_id, target_amount)
 
     return _portfolio_to_response(profile_id)
@@ -225,10 +255,16 @@ def handle_remove_allocation(profile_guid: str, product_id: str):
 
     try:
         user_id = get_user_by_guid(envelope["userId"])
-    except KeyError as e:
-        return (str(e), 400)
+    except KeyError as err:
+        return (str(err), 400)
+    except UserNotFoundError as err:
+        return (str(err), 404)
 
-    profile_id = get_profile_by_guid(profile_guid, user=user_id)
+    try:
+        profile_id = get_profile_by_guid(profile_guid, user=user_id)
+    except (ProfileNotFoundError, ProfileUserMismatchError) as err:
+        print(err)
+        return ("Portfolio not found", 404)
     remove_allocation(profile_id, product_id)
 
     return _portfolio_to_response(profile_id)
