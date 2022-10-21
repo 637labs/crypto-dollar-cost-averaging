@@ -116,7 +116,7 @@ interface PortfolioConfigProps {
     displayName: string;
     usdBalance: number;
     initialAllocations: AssetAllocation[];
-    onPortfolioUpdate: () => Promise<void>;
+    onPortfolioUpdate: (portfolioId: string) => Promise<void>;
     setAssetAllocation: (portfolioId: string, allocation: AssetAllocation) => Promise<void>;
     removeAssetAllocation: (portfolioId: string, productId: string) => Promise<void>;
 }
@@ -176,7 +176,7 @@ function PortfolioConfig(props: EnhancedPortfolioConfigProps): JSX.Element {
         setEditing(false);
         setSaving(true);
         Promise.all(apiPromises).finally(() => {
-            props.onPortfolioUpdate().finally(() => {
+            props.onPortfolioUpdate(props.id).finally(() => {
                 setSaving(false);
                 setAddedAllocations([]);
             });
