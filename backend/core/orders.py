@@ -23,7 +23,7 @@ _ORDER_RECORDS_COLLECTION = "order_records"
 
 class UnhandledMarketOrderException(Exception):
     def __init__(self, profile_id: ProfileId, product_id: ProductId, err: Exception):
-        super(UnhandledMarketOrderException).__init__(
+        super(UnhandledMarketOrderException, self).__init__(
             f"Unhandled market order exception for ProfileId@{profile_id.get_guid()} | {product_id}: {err}"
         )
 
