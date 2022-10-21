@@ -151,7 +151,32 @@ app.post('/api/portfolio/create',
     }
 );
 
+// DEPRECATED
 app.get('/api/portfolio',
+    ensureLoggedIn(),
+    (req, res) => {
+        if (!CoinbaseUser.isCoinbaseUser(req.user)) {
+            console.error("Request user is not of type CoinbaseUser");
+            return;
+        }
+        CoinbaseProPortfolio.deprecatedGet(
+            req.user,
+            (portfolio: CoinbaseProPortfolio) => {
+                res.status(200).json({
+                    portfolioId: portfolio.id,
+                    portfolioName: portfolio.displayName,
+                    tradeSpecs: portfolio.tradeSpecs,
+                    usdBalance: portfolio.usdBalance
+                });
+            },
+            () => {
+                res.sendStatus(404);
+            }
+        );
+    }
+);
+
+app.get('/api/portfolio/:portfolioId',
     ensureLoggedIn(),
     (req, res) => {
         if (!CoinbaseUser.isCoinbaseUser(req.user)) {
@@ -160,6 +185,7 @@ app.get('/api/portfolio',
         }
         CoinbaseProPortfolio.get(
             req.user,
+            req.params.portfolioId,
             (portfolio: CoinbaseProPortfolio) => {
                 res.status(200).json({
                     portfolioId: portfolio.id,

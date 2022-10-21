@@ -46,7 +46,8 @@ class CoinbaseProPortfolio {
         );
     }
 
-    static get(
+    // DEPRECATED
+    static deprecatedGet(
         user: CoinbaseUser,
         onSuccess: (portfolio: CoinbaseProPortfolio) => void,
         onFailure: () => void
@@ -58,6 +59,31 @@ class CoinbaseProPortfolio {
                 data: {
                     userId: user.id,
                 },
+                responseType: 'json'
+            },
+            (response) => {
+                if (onSuccess) {
+                    onSuccess(new CoinbaseProPortfolio(response.data.id, response.data.displayName, response.data.tradeSpecs, response.data.usdBalance));
+                }
+            },
+            () => {
+                if (onFailure) {
+                    onFailure();
+                }
+            }
+        );
+    }
+
+    static get(
+        user: CoinbaseUser,
+        portfolioId: string,
+        onSuccess: (portfolio: CoinbaseProPortfolio) => void,
+        onFailure: () => void
+    ) {
+        ApiService.authenticatedRequest(
+            {
+                method: 'get',
+                url: `/user/${user.id}/portfolio/${portfolioId}/v1`,
                 responseType: 'json'
             },
             (response) => {
