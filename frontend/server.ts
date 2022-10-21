@@ -201,6 +201,27 @@ app.get('/api/portfolio/:portfolioId',
     }
 );
 
+app.get('/api/portfolios',
+    ensureLoggedIn(),
+    (req, res) => {
+        if (!CoinbaseUser.isCoinbaseUser(req.user)) {
+            console.error("Request user is not of type CoinbaseUser");
+            return;
+        }
+        CoinbaseProPortfolio.list(
+            req.user,
+            (portfolios) => {
+                res.status(200).json({
+                    portfolios
+                });
+            },
+            () => {
+                res.sendStatus(404);
+            }
+        );
+    }
+);
+
 app.post('/api/portfolio/:portfolioId/allocation/:productId/set/v1',
     ensureLoggedIn(),
     bodyParser.json(),
