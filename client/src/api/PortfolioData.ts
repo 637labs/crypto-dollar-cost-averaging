@@ -47,12 +47,36 @@ class PortfolioAPI {
             });
     }
 
+    static listPortfolios(
+        onSuccess: (portfolios: [{ id: string, displayName: string }]) => void,
+        onAuthNeeded: () => void,
+        onNotFound: () => void
+    ): Promise<void> {
+        return getJson('/api/portfolios')
+            .then(response => {
+                if (response.ok) {
+                    response.json()
+                        .then(result => onSuccess(result.portfolios));
+                } else if (response.status === 401) {
+                    onAuthNeeded();
+                } else if (response.status === 404) {
+                    onNotFound();
+                } else {
+                    console.error(`Listing configured portfolios returned unexpected status: ${response.status}`)
+                }
+            })
+            .catch(error => {
+                console.error(`Failed to list configured portfolios: ${error}`)
+            })
+    }
+
     static fetchPortfolio(
+        portfolioId: string,
         onSuccess: (portfolio: Portfolio) => void,
         onAuthNeeded: () => void,
         onNotFound: () => void
     ): Promise<void> {
-        return getJson('/api/portfolio')
+        return getJson(`/api/portfolio/${portfolioId}`)
             .then(response => {
                 if (response.ok) {
                     response.json()

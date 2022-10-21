@@ -14,15 +14,31 @@ export default function DashboardContent(): JSX.Element {
     const [authNeeded, setAuthNeeded] = useState<boolean>(false);
 
     useEffect(() => {
-        PortfolioAPI.fetchPortfolio(
-            portfolio => setPortfolioDetails(portfolio),
+        PortfolioAPI.listPortfolios(
+            portfolios => {
+                // TODO: add support for multiple portfolios
+                if (portfolios.length > 1) {
+                    throw new Error(`Expected no more than one portfolio, found ${portfolios.length}`);
+                }
+                if (portfolios.length === 1) {
+                    PortfolioAPI.fetchPortfolio(
+                        portfolios[0].id,
+                        portfolio => setPortfolioDetails(portfolio),
+                        () => setAuthNeeded(true),
+                        () => setShowApiKeyForm(true)
+                    )
+                } else {
+                    setShowApiKeyForm(true)
+                }
+            },
             () => setAuthNeeded(true),
             () => setShowApiKeyForm(true)
         )
     }, []);
 
-    const handlePortfolioUpdate = () => {
+    const handlePortfolioUpdate = (portfolioId: string) => {
         return PortfolioAPI.fetchPortfolio(
+            portfolioId,
             portfolio => setPortfolioDetails(portfolio),
             () => setAuthNeeded(true),
             () => setShowApiKeyForm(true)

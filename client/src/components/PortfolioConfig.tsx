@@ -7,7 +7,6 @@ import AddIcon from '@material-ui/icons/Add';
 
 import { AssetAllocation } from '../api/PortfolioData';
 import { Product, CoinbaseProAPI } from '../api/CoinbaseProData';
-import { number } from 'prop-types';
 
 const CASH_RUNWAY_DAYS_WARNING_THRESHOLD = 5;
 
@@ -116,7 +115,7 @@ interface PortfolioConfigProps {
     displayName: string;
     usdBalance: number;
     initialAllocations: AssetAllocation[];
-    onPortfolioUpdate: () => Promise<void>;
+    onPortfolioUpdate: (portfolioId: string) => Promise<void>;
     setAssetAllocation: (portfolioId: string, allocation: AssetAllocation) => Promise<void>;
     removeAssetAllocation: (portfolioId: string, productId: string) => Promise<void>;
 }
@@ -176,7 +175,7 @@ function PortfolioConfig(props: EnhancedPortfolioConfigProps): JSX.Element {
         setEditing(false);
         setSaving(true);
         Promise.all(apiPromises).finally(() => {
-            props.onPortfolioUpdate().finally(() => {
+            props.onPortfolioUpdate(props.id).finally(() => {
                 setSaving(false);
                 setAddedAllocations([]);
             });
@@ -187,7 +186,7 @@ function PortfolioConfig(props: EnhancedPortfolioConfigProps): JSX.Element {
     const totalDailyContributions = currentAllocatedProductIds.map(productId => allocationAmounts[productId]).reduce<number>((sum, x) => sum + x, 0);
     const cashRunwayDays = totalDailyContributions > 0 ? Math.floor(props.usdBalance / totalDailyContributions) : Infinity;
     const runwayTextColor = cashRunwayDays <= CASH_RUNWAY_DAYS_WARNING_THRESHOLD ? 'error' : 'textPrimary';
-    const runwayString = cashRunwayDays == Infinity ? '--' : `${cashRunwayDays} days`;
+    const runwayString = cashRunwayDays === Infinity ? '--' : `${cashRunwayDays} days`;
     return (
         <Box
             sx={{ minWidth: 500, maxWidth: 800 }}
