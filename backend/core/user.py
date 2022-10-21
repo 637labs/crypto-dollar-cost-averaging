@@ -6,6 +6,10 @@ _VALID_PROVIDERS = (COINBASE,)
 _USERS_COLLECTION = "users"
 
 
+class UserNotFoundError(Exception):
+    pass
+
+
 class UserId:
     def __init__(self, provider, identifier):
         assert provider in _VALID_PROVIDERS
@@ -83,5 +87,5 @@ def get_or_create_user(provider: str, identifier: str) -> UserId:
 def get_by_guid(user_guid: str) -> UserId:
     user = get_db().collection(_USERS_COLLECTION).document(user_guid).get()
     if not user.exists:
-        raise Exception(f"Did not find UserId@{user_guid}")
+        raise UserNotFoundError(f"Did not find UserId@{user_guid}")
     return UserId(user.get("provider"), user.get("identifier"))

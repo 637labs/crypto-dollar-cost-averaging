@@ -16,6 +16,14 @@ assert DEFAULT_NS in _VALID_NAMESPACES
 _PROFILES_COLLECTION = "profiles"
 
 
+class ProfileNotFoundError(Exception):
+    pass
+
+
+class ProfileUserMismatchError(Exception):
+    pass
+
+
 class ProfileId:
     def __init__(self, namespace: str, identifier: str):
         assert namespace in _VALID_NAMESPACES
@@ -178,9 +186,9 @@ def get_for_user(user: UserId, namespace: str) -> Optional[ProfileId]:
 def get_by_guid(profile_guid: str, user: Optional[UserId] = None) -> ProfileId:
     profile = get_db().collection(_PROFILES_COLLECTION).document(profile_guid).get()
     if not profile.exists:
-        raise Exception(f"Did not find ProfileId@{profile_guid}")
+        raise ProfileNotFoundError(f"Did not find ProfileId@{profile_guid}")
     if user and profile.get("user") != user.get_guid():
-        raise Exception(
+        raise ProfileUserMismatchError(
             f"ProfileId@{profile_guid} does not belong to UserId@{user.get_guid()}"
         )
     return ProfileId(profile.get("namespace"), profile.get("identifier"))
