@@ -169,20 +169,6 @@ def delete_profile(profile_id: ProfileId) -> None:
     get_db().collection(_PROFILES_COLLECTION).document(profile_id.get_guid()).delete()
 
 
-def get_one_or_none_for_user(user: UserId, namespace: str) -> Optional[ProfileId]:
-    query = (
-        get_db()
-        .collection(_PROFILES_COLLECTION)
-        .where("namespace", "==", namespace)
-        .where("user", "==", user.get_guid())
-    )
-    matches = list(query.stream())
-    if matches:
-        [profile] = matches
-        return ProfileId(profile.get("namespace"), profile.get("identifier"))
-    return None
-
-
 def list_user_profiles(user: UserId) -> List[ProfileId]:
     query = (
         get_db().collection(_PROFILES_COLLECTION).where("user", "==", user.get_guid())

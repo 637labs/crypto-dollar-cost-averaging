@@ -46,34 +46,6 @@ class CoinbaseProPortfolio {
         );
     }
 
-    // DEPRECATED
-    static deprecatedGet(
-        user: CoinbaseUser,
-        onSuccess: (portfolio: CoinbaseProPortfolio) => void,
-        onFailure: () => void
-    ) {
-        ApiService.authenticatedRequest(
-            {
-                method: 'post',
-                url: '/user/portfolio-profile/view/v1',
-                data: {
-                    userId: user.id,
-                },
-                responseType: 'json'
-            },
-            (response) => {
-                if (onSuccess) {
-                    onSuccess(new CoinbaseProPortfolio(response.data.id, response.data.displayName, response.data.tradeSpecs, response.data.usdBalance));
-                }
-            },
-            () => {
-                if (onFailure) {
-                    onFailure();
-                }
-            }
-        );
-    }
-
     static get(
         user: CoinbaseUser,
         portfolioId: string,
