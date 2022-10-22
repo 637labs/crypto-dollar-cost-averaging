@@ -109,6 +109,13 @@ app.get('/auth/coinbase/callback',
     passport.authenticate('coinbase', { successRedirect: '/dashboard', failureRedirect: '/' })
 );
 
+app.post('/logout', function (req, res, next) {
+    req.logout(function (err) {
+        if (err) { return next(err); }
+        res.redirect('/');
+    });
+});
+
 app.get('/api/active-user',
     ensureLoggedIn(),
     (req, res) => {
