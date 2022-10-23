@@ -51,7 +51,9 @@ def handle_get_or_create_user():
 
     try:
         user_params = envelope["user"]
-        user_id = get_or_create_user(user_params["provider"], user_params["id"])
+        user_id = get_or_create_user(
+            user_params["provider"], user_params["id"], user_params["email"]
+        )
     except KeyError as e:
         return (str(e), 400)
 

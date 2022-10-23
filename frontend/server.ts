@@ -55,7 +55,9 @@ passport.deserializeUser<SerializedUser>((serUser, done) => {
 passport.use(new CoinbaseStrategy({
     clientID: process.env.COINBASE_CLIENT_ID!,
     clientSecret: process.env.COINBASE_CLIENT_SECRET!,
-    callbackURL: `${AUTH_CALLBACK_URL_BASE}/auth/coinbase/callback`
+    callbackURL: `${AUTH_CALLBACK_URL_BASE}/auth/coinbase/callback`,
+    account: 'all',
+    scope: ['wallet:user:email']
 },
     function (accessToken, refreshToken, profile, cb) {
         console.log("Received Coinbase tokens")
