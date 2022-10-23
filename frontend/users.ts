@@ -11,6 +11,9 @@ class CoinbaseUser {
     }
 
     static getOrCreate(profile: CoinbaseProfile, onSuccess: (user: CoinbaseUser) => void, onError: (reason: any) => void) {
+        if (!profile.emails || profile.emails.length === 0) {
+            throw new Error("Expected user profile to include an email.");
+        }
         ApiService.authenticatedRequest(
             {
                 method: 'post',
@@ -18,7 +21,8 @@ class CoinbaseUser {
                 data: {
                     user: {
                         provider: 'coinbase',
-                        id: profile.id
+                        id: profile.id,
+                        email: profile.emails[0].value
                     }
                 },
                 responseType: 'json'

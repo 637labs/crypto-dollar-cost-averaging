@@ -53,7 +53,7 @@ def _create_user(transaction, provider, identifier):
 
 
 @transactional
-def _get_or_create_user(transaction, provider, identifier):
+def _get_or_create_user(transaction, provider, identifier, email):
     matching_user_query = (
         get_db()
         .collection(_USERS_COLLECTION)
@@ -63,13 +63,17 @@ def _get_or_create_user(transaction, provider, identifier):
     matches = list(matching_user_query.stream(transaction=transaction))
     if len(matches) == 1:
         [user] = matches
+        # Update the user's email with the latest shared by the provider
+        transaction.update(user.reference, {"email": email})
         return UserId(user.get("provider"), user.get("identifier"))
     elif matches:
         raise Exception(
             f"Multiple users exist with <'provider':'{provider}', 'identifier':'{identifier}'>!"
         )
     user_ref = get_db().collection(_USERS_COLLECTION).document()
-    transaction.create(user_ref, {"provider": provider, "identifier": identifier})
+    transaction.create(
+        user_ref, {"provider": provider, "identifier": identifier, "email": email}
+    )
 
     return UserId(provider, identifier)
 
@@ -79,9 +83,9 @@ def create_user(provider: str, identifier: str) -> UserId:
     return _create_user(transaction, provider, identifier)
 
 
-def get_or_create_user(provider: str, identifier: str) -> UserId:
+def get_or_create_user(provider: str, identifier: str, email: str) -> UserId:
     transaction = get_db().transaction()
-    return _get_or_create_user(transaction, provider, identifier)
+    return _get_or_create_user(transaction, provider, identifier, email)
 
 
 def get_by_guid(user_guid: str) -> UserId:
