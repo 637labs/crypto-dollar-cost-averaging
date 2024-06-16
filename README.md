@@ -1,4 +1,6 @@
 # nckl -- cheap & easy crypto DCA
+*Service is spun down and code no longer actively maintained! Feel free to reach out if you'd like to reuse and have any questions.*
+
 https://nckl.app/
 
 Dollar-cost averaging into crypto assets currently has too many trade-offs:
