@@ -1,4 +1,4 @@
-protobuf==3.20.1 # we need to pin this dependency because >4.x.x appears to break firestore
+protobuf==3.20.2 # we need to pin this dependency because >4.x.x appears to break firestore
 google-cloud-firestore==2.5.3
 google-cloud-pubsub==2.13.0
 google-cloud-secret-manager==2.11.1
